@@ -182,9 +182,6 @@ products.push(new Product("brostfile", 7734, red));
 products.push(new Product("brostfile", 7123, red));
 
 
-// Create a list of orders.
-let orders = [];
-
 // Get the data from the uploaded excel file.
 let jsonDataGlobal;
 
@@ -203,16 +200,11 @@ input.addEventListener('change', () => {
         document.getElementById('jsonOutput').textContent = JSON.stringify(jsonData, null, 2);
 
     };
-
-
-
     
     reader.readAsArrayBuffer(file);
 });
-
-let d = document.getElementById("jsonOutput").textContent;
-
-console.log(d);
+// Create a list of orders.
+let orders = [];
 
 orders.push(new Order(1311, 2));
 orders.push(new Order(10422, 89));
