@@ -17,8 +17,6 @@
             text-align: center;
         }
     </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
-
 
 </head>
 
@@ -26,12 +24,17 @@
     <h1>File Upload and Output</h1>
     <input type="file" id="file-input" accept=".xlsx,.xls" />
 
+    <h1>Enter Input</h1>
+    <input type="text" id="orderInput" placeholder="Enter input like 1311:64">
+    <button onclick="addOrder()">Submit</button>
+    <pre id="jsonOutput"></pre>
+
+    
     <textarea id="output" readonly>
 
     </textarea>
 
 
-    <pre id="jsonOutput"></pre>
     <!-- <script>
         const fileInput = document.getElementById("fileInput");
         const output = document.getElementById("output");

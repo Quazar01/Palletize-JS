@@ -121,7 +121,7 @@ const MAX_HEIGHT = 1400;
 // Define the boxes.
 // length, width, height, maxStackHeight, fullPall(how many boxes fit in a full pall), boxesInRow(how many boxes fit in one row).
 
-const red = new Box(400, 300, 157, 8, 64, 8);
+const red = new Box(400, 300, 156, 8, 64, 8);
 const green = new Box(600, 400, 180, 7, 28, 4);
 const blue = new Box(400, 300, 114, 11, 88, 8);
 const renrum = new Box(400, 300, 78, 16, 128, 8);
@@ -182,75 +182,7 @@ products.push(new Product("brostfile", 7734, red));
 products.push(new Product("brostfile", 7123, red));
 
 
-// Get the data from the uploaded excel file.
-let jsonDataGlobal;
-
-const input = document.getElementById('file-input');
-input.addEventListener('change', () => {
-    const file = input.files[0];
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-        document.getElementById('jsonOutput').textContent = JSON.stringify(jsonData, null, 2);
-
-    };
-    
-    reader.readAsArrayBuffer(file);
-});
-// Create a list of orders.
 let orders = [];
-
-orders.push(new Order(1311, 2));
-orders.push(new Order(10422, 89));
-orders.push(new Order(3948, 8));
-orders.push(new Order(63326, 18));
-orders.push(new Order(3947, 12));
-orders.push(new Order(1261, 32));
-orders.push(new Order(1264, 15));
-orders.push(new Order(1167, 1));
-orders.push(new Order(1176, 6));
-orders.push(new Order(1251, 28));
-orders.push(new Order(1286, 14));
-orders.push(new Order(1047, 16));
-orders.push(new Order(1057, 8));
-orders.push(new Order(5209, 234));
-orders.push(new Order(10722, 2));
-orders.push(new Order(1361, 3));
-orders.push(new Order(1185, 15));
-orders.push(new Order(1111, 38));
-orders.push(new Order(1112, 32));
-orders.push(new Order(2703, 31));
-orders.push(new Order(2704, 47));
-orders.push(new Order(2706, 31));
-orders.push(new Order(1292, 5));
-orders.push(new Order(327994, 33));
-orders.push(new Order(9839, 61));
-orders.push(new Order(9840, 16));
-orders.push(new Order(7734, 16));
-orders.push(new Order(2701, 2));
-orders.push(new Order(1016, 2));
-orders.push(new Order(1161, 24));
-orders.push(new Order(1260, 7));
-orders.push(new Order(1273, 3));
-orders.push(new Order(1391, 6));
-orders.push(new Order(327986, 8));
-orders.push(new Order(407788, 28));
-orders.push(new Order(3467, 7));
-orders.push(new Order(43527, 34));
-orders.push(new Order(7123, 22));
-orders.push(new Order(5585, 35));
-orders.push(new Order(1289, 20));
-orders.push(new Order(9835, 14));
-orders.push(new Order(1043, 2));
-orders.push(new Order(2700, 2));
-orders.push(new Order(1293, 13));
-
 // Create a list of full pllets.
 let fullPalls = [];
 // Create a list of skvett pallets.
@@ -258,7 +190,80 @@ let skvettPalls = [];
 // Create a list of mix products.
 let mixProducts = [];
 
+// Create a list of orders.
 
+orders.push(new Order(1311, 19));
+// orders.push(new Order(10422, 89));
+orders.push(new Order(3941, 16));
+// orders.push(new Order(63326, 18));
+// orders.push(new Order(3947, 12));
+orders.push(new Order(1261, 16));
+orders.push(new Order(1264, 8));
+orders.push(new Order(1167, 1));
+// orders.push(new Order(1176, 6));
+orders.push(new Order(1251, 7));
+orders.push(new Order(1286, 5));
+orders.push(new Order(1047, 4));
+// orders.push(new Order(1057, 8));
+orders.push(new Order(5209, 20));
+// orders.push(new Order(10722, 2));
+orders.push(new Order(1361, 38)); 
+orders.push(new Order(1185, 12));
+orders.push(new Order(1111, 4));
+orders.push(new Order(1112, 13));
+orders.push(new Order(2703, 10));
+orders.push(new Order(2704, 32));
+orders.push(new Order(2706, 5));
+orders.push(new Order(1292, 14));
+// orders.push(new Order(327994, 33));
+orders.push(new Order(9839, 18));
+orders.push(new Order(9840, 1));
+orders.push(new Order(7734, 11));
+orders.push(new Order(2701, 19));
+orders.push(new Order(1016, 1));
+orders.push(new Order(1161, 10));
+orders.push(new Order(1260, 16)); 
+orders.push(new Order(1273, 9));
+orders.push(new Order(1391, 23));
+orders.push(new Order(327986, 7));
+// orders.push(new Order(407788, 28));
+orders.push(new Order(3467, 4)); // instaed of 3362.
+orders.push(new Order(43527, 29));
+// orders.push(new Order(7123, 22));
+// orders.push(new Order(5585, 35));
+orders.push(new Order(1289, 10));
+// orders.push(new Order(9835, 14));
+// orders.push(new Order(1043, 2));
+orders.push(new Order(2700, 66));
+orders.push(new Order(1293, 3));
+//[1044,929,929,929,864,864,772,772,772,714,684,615,615,612,504,504,504,504,486,458,458,458,458,458,458,456,456,301]
+
+
+
+// Get the data from the uploaded excel file.
+// let jsonDataGlobal;
+
+// const input = document.getElementById('file-input');
+// input.addEventListener('change', () => {
+//     const file = input.files[0];
+//     const reader = new FileReader();
+
+//     reader.onload = (e) => {
+//         const data = new Uint8Array(e.target.result);
+//         const workbook = XLSX.read(data, { type: 'array' });
+//         const sheetName = workbook.SheetNames[0];
+//         const worksheet = workbook.Sheets[sheetName];
+//         const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+//         document.getElementById('jsonOutput').textContent = JSON.stringify(jsonData, null, 2);
+
+//     };
+    
+//     reader.readAsArrayBuffer(file);
+// });
+
+
+// Where the magic begins!
 orders.forEach((order) => {
 
     // Define the product of the order.
@@ -312,7 +317,7 @@ orders.forEach((order) => {
         }
     }
 
-   // If the order quantity is less than a full pall, put the order as a skvett in a SkvettPall
+    // If the order quantity is less than a full pall, put the order as a skvett in a SkvettPall
     else {
         // If the stack's height doesn't allow stacking another over it,
         // put it in a full pall
@@ -355,75 +360,135 @@ orders.forEach((order) => {
         }
     }
 
-    skvettPalls.sort((a, b) => b.getHeight() - a.getHeight());
 });
+// skvettPalls.sort((a, b) => b.getHeight() - a.getHeight());
 
-// skvettPalls.forEach(skvettPall => {
-//     console.log(skvettPall)
-// });
+// Greedy Approach
+let comboPalls = combinePallets(skvettPalls, 1500);
+console.log(comboPalls);
 
-const comboPalls = [];
+function combinePallets(pallets, maxSum) {
+    // Sort the pallets array in descending order by height
+    pallets.sort((a, b) => b.height - a.height);
 
-for (let i = 0; i < skvettPalls.length - 1; i++) {
-    // First pall is the highest pall, fetch it and stack it over the next pall,
-    // If they do not exceed the max height, put them in a combo pall,
-    // Check if the combo pall can be stacked over a third pall,
-    // If so add third pall to the combo pall, so combo pall becomes three palls.
+    const parcelPallets = [];
+    let i = 0;
 
-    const skvettPall = skvettPalls[i];
-
-    if (skvettPall.plock) continue;
-    let currentHeight = skvettPall.height;
-
-    // Check if the first pall can be stacked over any of the un plocked palls.
-    for (let j = i + 1; j < skvettPalls.length; j++) {
-        if (skvettPall.plock) break;
-
-        const otherSkvetPall = skvettPalls[j];
-
-        const comboPall = [];
-
-        const otherHeight = otherSkvetPall.getHeight();
-
-        // Check if the two palls stacked over each other does not exceed the max height
-        if (currentHeight + otherHeight < MAX_HEIGHT) {
-
-            skvettPall.plock = true;
-            otherSkvetPall.plock = true;
-
-            // Add the two palls to the combo pall.
-            comboPall.push(new SkvettPall(skvettPall.prodId, skvettPall.quantity, skvettPall.height));
-            comboPall.push(new SkvettPall(otherSkvetPall.prodId, otherSkvetPall.quantity, otherSkvetPall.height));
-
-            // Apply a tribbel pall
-            for (let k = j + 1; k < skvettPalls.length; k++) {
-                const nextSkvettPall = skvettPalls[k];
-                if (nextSkvettPall.plock) continue;
-
-                const nextHeight = nextSkvettPall.getHeight();
-
-                if (currentHeight + otherHeight + nextHeight < MAX_HEIGHT) {
-                    // Add a third pall on the combo pall.
-                    comboPall.push(new SkvettPall(nextSkvettPall.prodId, nextSkvettPall.quantity, nextSkvettPall.height));
-
-                    // Tag the third pall as plocked.
-                    nextSkvettPall.plock = true;
-                    break;
-                }
-            }
-
-            comboPalls.push([...comboPall]);
+    while (i < pallets.length) {
+        // Try to find the best combination
+        if (
+            i + 2 < pallets.length &&
+            pallets[i].height + pallets[i + 1].height + pallets[i + 2].height <= maxSum
+        ) {
+            parcelPallets.push([
+                pallets[i],
+                pallets[i + 1],
+                pallets[i + 2],
+            ]);
+            i += 3;
+        } else if (i + 1 < pallets.length && pallets[i].height + pallets[i + 1].height <= maxSum) {
+            parcelPallets.push([pallets[i], pallets[i + 1]]);
+            i += 2;
+        } else {
+            parcelPallets.push([pallets[i]]);
+            i += 1;
         }
     }
+
+    return parcelPallets;
 }
 
-const notMatched = [];
-// Check if there are any palls that doesn't have a match pair.
-for (const skvettPall of skvettPalls) {
-    if (!skvettPall.plock) {
-        notMatched.push(new SkvettPall(skvettPall.prodId, skvettPall.quantity, skvettPall.height));
-    }
-}
+// Another approach (sort of Greedy)
+// let comboPalls = combineSkvettPalls(skvettPalls, 1400);
+// console.log(comboPalls);
+// function combineSkvettPalls(skvettPalls, maxSum) {
+//     // Sort the array in descending order
+//     skvettPalls.sort((a, b) => b - a);
+
+//     let combinedSkvettPalls = [];
+//     let i = 0;
+
+//     while (i < skvettPalls.length) {
+//         // Try to find the best combination
+//         if (i + 2 < skvettPalls.length && skvettPalls[i].height + skvettPalls[i + 1].height + skvettPalls[i + 2].height < maxSum) {
+//             combinedSkvettPalls.push([skvettPalls[i], skvettPalls[i + 1], skvettPalls[i + 2]]);
+//             i += 3;
+//         } else if (i + 1 < skvettPalls.length && skvettPalls[i] + skvettPalls[i + 1] < maxSum) {
+//             combinedSkvettPalls.push([skvettPalls[i], skvettPalls[i + 1]]);
+//             i += 2;
+//         } else {
+//             combinedSkvettPalls.push([skvettPalls[i]]);
+            
+//             i += 1;
+//         }
+//     }
+
+//     return combinedSkvettPalls;
+// }
+
+
+// This is my mediocre approach ;)
+// for (let i = 0; i < skvettPalls.length - 1; i++) {
+//     // First pall is the highest pall, fetch it and stack it over the next pall,
+//     // If they do not exceed the max height, put them in a combo pall,
+//     // Check if the combo pall can be stacked over a third pall,
+//     // If so add third pall to the combo pall, so combo pall becomes three palls.
+
+//     const skvettPall = skvettPalls[i];
+
+//     if (skvettPall.plock) continue;
+//     let currentHeight = skvettPall.height;
+
+//     // Check if the first pall can be stacked over any of the un plocked palls.
+//     for (let j = i + 1; j < skvettPalls.length; j++) {
+//         if (skvettPall.plock) break;
+
+//         const otherSkvetPall = skvettPalls[j];
+
+//         const comboPall = [];
+
+//         const otherHeight = otherSkvetPall.getHeight();
+
+//         // Check if the two palls stacked over each other does not exceed the max height
+//         if (currentHeight + otherHeight < MAX_HEIGHT) {
+
+//             skvettPall.plock = true;
+//             otherSkvetPall.plock = true;
+
+//             // Add the two palls to the combo pall.
+//             comboPall.push(new SkvettPall(skvettPall.prodId, skvettPall.quantity, skvettPall.height));
+//             comboPall.push(new SkvettPall(otherSkvetPall.prodId, otherSkvetPall.quantity, otherSkvetPall.height));
+
+//             // Apply a tribbel pall
+//             for (let k = j + 1; k < skvettPalls.length; k++) {
+//                 const nextSkvettPall = skvettPalls[k];
+//                 if (nextSkvettPall.plock) continue;
+
+//                 const nextHeight = nextSkvettPall.getHeight();
+
+//                 if (currentHeight + otherHeight + nextHeight < MAX_HEIGHT) {
+//                     // Add a third pall on the combo pall.
+//                     comboPall.push(new SkvettPall(nextSkvettPall.prodId, nextSkvettPall.quantity, nextSkvettPall.height));
+
+//                     // Tag the third pall as plocked.
+//                     nextSkvettPall.plock = true;
+//                     break;
+//                 }
+//             }
+
+//             comboPalls.push([...comboPall]);
+//         }
+//     }
+// }
+
+// const notMatched = [];
+// // Check if there are any palls that doesn't have a match pair.
+// for (const skvettPall of skvettPalls) {
+//     if (!skvettPall.plock) {
+//         notMatched.push(new SkvettPall(skvettPall.prodId, skvettPall.quantity, skvettPall.height));
+//     }
+// }
+
 
 // Print the results into the text area.
 let outputArea = document.getElementById("output");
@@ -438,11 +503,11 @@ for (const fullPall of fullPalls) {
     outputArea.value += output + "\n";
 }
 
-outputArea.value += "\n\nSelf Contained Palls: \n";
-for (const enskildPall of notMatched) {
-    outputArea.value += (`${enskildPall.prodId}: ${enskildPall.quantity}`);
-    outputArea.value += ("\n___________________");
-}
+// outputArea.value += "\n\nSelf Contained Palls: \n";
+// for (const enskildPall of notMatched) {
+//     outputArea.value += (`${enskildPall.prodId}: ${enskildPall.quantity}`);
+//     outputArea.value += ("\n___________________\n");
+// }
 
 outputArea.value += "\n\nCombo Palls: \n\n";
 for (const combo of comboPalls) {
@@ -456,6 +521,8 @@ outputArea.value += "\n\nMix Pall: \n\n";
 for (const mixProduct of mixProducts) {
     outputArea.value += (`${mixProduct.prodId}: ${mixProduct.quantity}\n`);
 }
+
+
 
 function getProduct(productId, products) {
     for (let i = 0; i < products.length; i++) {
@@ -478,3 +545,5 @@ function getFullPall(prodId, fullPalls) {
     }
     return null;
 }
+
+
