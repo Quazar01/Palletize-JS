@@ -1,4 +1,3 @@
-
 class EmptyPallet {
     constructor(length, width, height) {
         this.length = length;
@@ -37,6 +36,7 @@ class Product {
         return this.id;
     }
 }
+
 class SkvettPall {
     constructor(prodId, quantity, height) {
         this.prodId = prodId;
@@ -59,24 +59,20 @@ class SkvettPall {
 }
 
 class FullPall {
-    // Constructor method to initialize an object
-    constructor(prodId, quantity, boxesInFullPall) {
+    constructor(prodId, quantity, numOfBoxes) {
         this.prodId = prodId;
         this.quantity = quantity;
-        this.boxesInFullPall = boxesInFullPall;
+        this.boxesInFullPall = numOfBoxes;
     }
 
-    // Method to get the product ID
     getProdId() {
         return this.prodId;
     }
 
-    // Method to get the quantity
     getQuantity() {
         return this.quantity;
     }
 
-    // Method to set the quantity
     setQuantity(quantity) {
         this.quantity = quantity;
     }
@@ -112,14 +108,8 @@ class Order {
     }
 }
 
-// Create an empty EU Pallet.
-// Dimensions in mm.
 const emptyPallet = new EmptyPallet(1200, 800, 144);
-
-const MAX_HEIGHT = 1400; 
-
-// Define the boxes.
-// length, width, height, maxStackHeight, fullPall(how many boxes fit in a full pall), boxesInRow(how many boxes fit in one row).
+const MAX_HEIGHT = 1400;
 
 const red = new Box(400, 300, 156, 8, 64, 8);
 const green = new Box(600, 400, 180, 7, 28, 4);
@@ -127,409 +117,229 @@ const blue = new Box(400, 300, 114, 11, 88, 8);
 const renrum = new Box(400, 300, 78, 16, 128, 8);
 const black = new Box(400, 300, 209, 6, 48, 8);
 
-// Create a list of products.
-let products = [];
+let products = [
+    new Product("thai", 1266, red),
+    new Product("wings", 1286, red),
+    new Product("fars", 1311, red),
+    new Product("sweetChilli", 1261, red),
+    new Product("paneng", 1264, red),
+    new Product("klubbor", 10422, green),
+    new Product("helfagelLidl", 3947, green),
+    new Product("helfagelMajs", 3948, green),
+    new Product("helfagelNatural", 3941, green),
+    new Product("tolvelva", 1211, black),
+    new Product("elva76", 1176, black),
+    new Product("benLidl", 4751, black),
+    new Product("elva67", 1167, blue),
+    new Product("farsLiten", 1310, blue),
+    new Product("sallad", 2703, renrum),
+    new Product("sallad", 2700, renrum),
+    new Product("nuggets", 2701, renrum),
+    new Product("1251", 1251, red),
+    new Product("1185", 1185, red),
+    new Product("brostfile", 10722, green),
+    new Product("brostfile", 1057, green),
+    new Product("brostfile", 3467, green),
+    new Product("brostfile", 1047, green),
+    new Product("brostfile", 1361, red),
+    new Product("brostfile", 5209, blue),
+    new Product("brostfile", 5585, blue),
+    new Product("brostfile", 1289, blue),
+    new Product("brostfile", 1111, red),
+    new Product("brostfile", 1112, red),
+    new Product("brostfile", 2706, renrum),
+    new Product("brostfile", 2704, renrum),
+    new Product("brostfile", 327994, red),
+    new Product("brostfile", 1292, red),
+    new Product("brostfile", 1043, red),
+    new Product("brostfile", 407788, red),
+    new Product("brostfile", 327986, red),
+    new Product("brostfile", 327960, red),
+    new Product("brostfile", 9835, red),
+    new Product("brostfile", 43527, red),
+    new Product("brostfile", 9839, red),
+    new Product("brostfile", 9840, green),
+    new Product("brostfile", 63326, green),
+    new Product("brostfile", 1293, red),
+    new Product("brostfile", 1016, red),
+    new Product("brostfile", 1161, red),
+    new Product("brostfile", 1260, red),
+    new Product("brostfile", 1273, red),
+    new Product("brostfile", 1391, red),
+    new Product("brostfile", 7734, red),
+    new Product("brostfile", 7123, red),
 
-products.push(new Product("thai", 1266, red));
-products.push(new Product("wings", 1286, red));
-products.push(new Product("fars", 1311, red));
-products.push(new Product("sweetChilli", 1261, red));
-products.push(new Product("paneng", 1264, red));
-products.push(new Product("klubbor", 10422, green));
-products.push(new Product("helfagelLidl", 3947, green));
-products.push(new Product("helfagelMajs", 3948, green));
-products.push(new Product("helfagelNatural", 3941, green));
-products.push(new Product("tolvelva", 1211, black));
-products.push(new Product("elva76", 1176, black));
-products.push(new Product("benLidl", 4751, black));
-products.push(new Product("elva67", 1167, blue));
-products.push(new Product("farsLiten", 1310, blue));
-products.push(new Product("sallad", 2703, renrum));
-products.push(new Product("sallad", 2700, renrum));
-products.push(new Product("nuggets", 2701, renrum));
-products.push(new Product("1251", 1251, red));
-products.push(new Product("1185", 1185, red));
-products.push(new Product("brostfile", 10722, green));
-products.push(new Product("brostfile", 1057, green));
-products.push(new Product("brostfile", 3467, green));
-products.push(new Product("brostfile", 1047, green));
-products.push(new Product("brostfile", 1361, red));
-products.push(new Product("brostfile", 5209, blue));
-products.push(new Product("brostfile", 5585, blue));
-products.push(new Product("brostfile", 1289, blue));
-products.push(new Product("brostfile", 1111, red));
-products.push(new Product("brostfile", 1112, red));
-products.push(new Product("brostfile", 2706, renrum));
-products.push(new Product("brostfile", 2704, renrum));
-products.push(new Product("brostfile", 327994, red));
-products.push(new Product("brostfile", 1292, red));
-products.push(new Product("brostfile", 1043, red));
-products.push(new Product("brostfile", 407788, red));
-products.push(new Product("brostfile", 327986, red));
-products.push(new Product("brostfile", 327960, red));
-products.push(new Product("brostfile", 9835, red));
-products.push(new Product("brostfile", 43527, red));
-products.push(new Product("brostfile", 9839, red));
-products.push(new Product("brostfile", 9840, green));
-products.push(new Product("brostfile", 63326, green));
-products.push(new Product("brostfile", 1293, red));
-products.push(new Product("brostfile", 1016, red));
-products.push(new Product("brostfile", 1161, red));
-products.push(new Product("brostfile", 1260, red));
-products.push(new Product("brostfile", 1273, red));
-products.push(new Product("brostfile", 1391, red));
-products.push(new Product("brostfile", 7734, red));
-products.push(new Product("brostfile", 7123, red));
+];
+
+products.forEach(product => {
+    console.log(product);
+});
 
 
-let orders = [];
-// Create a list of full pllets.
+let orders = [
+    new Order(1311, 19),
+    new Order(10422, 89),
+    new Order(3941, 16),
+    new Order(63326, 18),
+    new Order(3947, 125),
+    new Order(1261, 16),
+    new Order(1264, 8),
+    new Order(1167, 1),
+    new Order(1176, 6),
+    new Order(1251, 7),
+    new Order(1286, 5),
+    new Order(1047, 4),
+    new Order(1057, 8),
+    new Order(5209, 20),
+    new Order(10722, 2),
+    new Order(1361, 38),
+    new Order(1185, 12),
+    new Order(1111, 4),
+    new Order(1112, 13),
+    new Order(2703, 10),
+    new Order(2704, 32),
+    new Order(2706, 5),
+    new Order(1292, 14),
+    new Order(327994, 33),
+    new Order(9839, 18),
+    new Order(9840, 1),
+    new Order(7734, 11),
+    new Order(2701, 19),
+    new Order(1016, 1),
+    new Order(1161, 10),
+    new Order(1260, 16), 
+    new Order(1273, 9),
+    new Order(1391, 23),
+    new Order(327986, 7),
+    //new Order(407788, 28),
+    new Order(3467, 4), // instaed of 3362.
+    new Order(43527, 29),
+    // new Order(7123, 22),
+    // new Order(5585, 35),
+    new Order(1289, 10),
+    // new Order(9835, 14),
+    // new Order(1043, 2),
+    new Order(2700, 66),
+    new Order(1293, 3),
+];
+
 let fullPalls = [];
-// Create a list of skvett pallets.
 let skvettPalls = [];
-// Create a list of mix products.
 let mixProducts = [];
 
-// Create a list of orders.
-
-orders.push(new Order(1311, 19));
-// orders.push(new Order(10422, 89));
-orders.push(new Order(3941, 16));
-// orders.push(new Order(63326, 18));
-// orders.push(new Order(3947, 12));
-orders.push(new Order(1261, 16));
-orders.push(new Order(1264, 8));
-orders.push(new Order(1167, 1));
-// orders.push(new Order(1176, 6));
-orders.push(new Order(1251, 7));
-orders.push(new Order(1286, 5));
-orders.push(new Order(1047, 4));
-// orders.push(new Order(1057, 8));
-orders.push(new Order(5209, 20));
-// orders.push(new Order(10722, 2));
-orders.push(new Order(1361, 38)); 
-orders.push(new Order(1185, 12));
-orders.push(new Order(1111, 4));
-orders.push(new Order(1112, 13));
-orders.push(new Order(2703, 10));
-orders.push(new Order(2704, 32));
-orders.push(new Order(2706, 5));
-orders.push(new Order(1292, 14));
-// orders.push(new Order(327994, 33));
-orders.push(new Order(9839, 18));
-orders.push(new Order(9840, 1));
-orders.push(new Order(7734, 11));
-orders.push(new Order(2701, 19));
-orders.push(new Order(1016, 1));
-orders.push(new Order(1161, 10));
-orders.push(new Order(1260, 16)); 
-orders.push(new Order(1273, 9));
-orders.push(new Order(1391, 23));
-orders.push(new Order(327986, 7));
-// orders.push(new Order(407788, 28));
-orders.push(new Order(3467, 4)); // instaed of 3362.
-orders.push(new Order(43527, 29));
-// orders.push(new Order(7123, 22));
-// orders.push(new Order(5585, 35));
-orders.push(new Order(1289, 10));
-// orders.push(new Order(9835, 14));
-// orders.push(new Order(1043, 2));
-orders.push(new Order(2700, 66));
-orders.push(new Order(1293, 3));
-//[1044,929,929,929,864,864,772,772,772,714,684,615,615,612,504,504,504,504,486,458,458,458,458,458,458,456,456,301]
-
-
-
-// Get the data from the uploaded excel file.
-// let jsonDataGlobal;
-
-// const input = document.getElementById('file-input');
-// input.addEventListener('change', () => {
-//     const file = input.files[0];
-//     const reader = new FileReader();
-
-//     reader.onload = (e) => {
-//         const data = new Uint8Array(e.target.result);
-//         const workbook = XLSX.read(data, { type: 'array' });
-//         const sheetName = workbook.SheetNames[0];
-//         const worksheet = workbook.Sheets[sheetName];
-//         const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-//         document.getElementById('jsonOutput').textContent = JSON.stringify(jsonData, null, 2);
-
-//     };
-    
-//     reader.readAsArrayBuffer(file);
-// });
-
-
-// Where the magic begins!
 orders.forEach((order) => {
 
-    // Define the product of the order.
     let product = getProduct(order.getProdId(), products);
 
-    // Define the stack height of the order.
     let stackHeight = Math.ceil(order.quantity / product.box.boxesInRow);
-
-    // Check if it can be divided into full pallets
     if (parseInt((order.quantity / product.getBox().fullPall)) != 0) {
-        fullPalls.push(
-            new FullPall(
-                order.prodId,
-                Math.floor(order.quantity / product.box.fullPall),
-                product.box.fullPall
-            )
-        );
-        // console.log(fullPalls);
-        // Update the remainder quantity after subtracting full palls
+        fullPalls.push(new FullPall(order.prodId, Math.floor(order.quantity / product.box.fullPall), product.box.fullPall));
         order.quantity = order.quantity % product.box.fullPall;
-
-        // Update the height of the remainder pall
         stackHeight = Math.ceil(order.quantity / product.box.boxesInRow);
 
-        // If the stack's height doesn't allow stacking another over it,
-        // move the remainder quantity as a full pall
         if (product.box.boxesInRow === 8 && stackHeight > 6) {
-            // Fetch the fullPall object of this product to edit its quantity
             const fullPall = getFullPall(order.prodId, fullPalls);
             if (fullPall !== null) {
                 fullPall.quantity += 1;
                 order.quantity = 0;
             }
         } else if (product.box.boxesInRow === 4 && stackHeight > 5) {
-            // Fetch the products full pall and add it to it
             const fullPall = getFullPall(order.prodId, fullPalls);
             if (fullPall !== null) {
                 fullPall.setQuantity(fullPall.getQuantity() + 1);
                 order.quantity = 0;
             }
-        }
-        // otherwise, put the remainder of the product in a SkvettPall
-        else {
+        } else {
             stackHeight = Math.ceil(order.quantity / product.box.boxesInRow);
-            const skvettHeight =
-                product.box.height * stackHeight + emptyPallet.height;
-
-            skvettPalls.push(
-                new SkvettPall(order.prodId, order.quantity, skvettHeight)
-            );
-        }
-    }
-
-    // If the order quantity is less than a full pall, put the order as a skvett in a SkvettPall
-    else {
-        // If the stack's height doesn't allow stacking another over it,
-        // put it in a full pall
-
-        // For red boxes
-        if (product.box.maxStackHeight === 8 && stackHeight > 6) {
-            fullPalls.push(new FullPall(order.prodId, 1, order.quantity));
-            order.quantity = 0;
-        }
-        // For green boxes
-        else if (product.box.maxStackHeight === 7 && stackHeight > 5) {
-            // If the product has green box and its stack height is more than 5
-            // Put it in a full pall
-            // If the boxes are less than a full pall
-            fullPalls.push(new FullPall(order.prodId, 1, order.quantity));
-            order.quantity = 0;
-        }
-        // For blue boxes
-        else if (product.box.maxStackHeight === 11 && stackHeight > 8) {
-            fullPalls.push(new FullPall(order.prodId, 1, order.quantity));
-            order.quantity = 0;
-        }
-        // For renrum boxes
-        else if (product.box.maxStackHeight == 16 && stackHeight > 12) {
-            fullPalls.push(new FullPall(order.prodId, 1, order.quantity));
-            order.quantity = 0;
-        }
-        // If the quantity does not form a skvett pall, put it in a mix pall
-        else if (order.quantity < product.box.boxesInRow) {
-            mixProducts.push(new MixProduct(order.prodId, order.quantity));
-            order.quantity = 0;
-        }
-        // if the pall's height allow stacking another pall on it,
-        // then put the remainder of the product in a SkvettPall
-        else {
-            stackHeight = Math.ceil(order.quantity / product.box.boxesInRow);
-            const skvettHeight = (product.box.height * stackHeight) + emptyPallet.height;
-
+            const skvettHeight = product.box.height * stackHeight + emptyPallet.height;
             skvettPalls.push(new SkvettPall(order.prodId, order.quantity, skvettHeight));
         }
+    } else {
+        handleSkvettOrMixPall(order, product, stackHeight);
     }
-
 });
-// skvettPalls.sort((a, b) => b.getHeight() - a.getHeight());
 
-// Greedy Approach
-let comboPalls = combinePallets(skvettPalls, 1500);
+function handleSkvettOrMixPall(order, product, stackHeight) {
+    if (product.box.maxStackHeight === 8 && stackHeight > 6) {
+        fullPalls.push(new FullPall(order.prodId, 1, order.quantity));
+        order.quantity = 0;
+    } else if (product.box.maxStackHeight === 7 && stackHeight > 5) {
+        fullPalls.push(new FullPall(order.prodId, 1, order.quantity));
+        order.quantity = 0;
+    } else if (product.box.maxStackHeight === 11 && stackHeight > 8) {
+        fullPalls.push(new FullPall(order.prodId, 1, order.quantity));
+        order.quantity = 0;
+    } else if (product.box.maxStackHeight == 16 && stackHeight > 12) {
+        fullPalls.push(new FullPall(order.prodId, 1, order.quantity));
+        order.quantity = 0;
+    } else if (order.quantity < product.box.boxesInRow) {
+        mixProducts.push(new MixProduct(order.prodId, order.quantity));
+        order.quantity = 0;
+    } else {
+        stackHeight = Math.ceil(order.quantity / product.box.boxesInRow);
+        const skvettHeight = product.box.height * stackHeight + emptyPallet.height;
+        skvettPalls.push(new SkvettPall(order.prodId, order.quantity, skvettHeight));
+    }
+}
+
+let comboPalls = combinePallets(skvettPalls, 1400);
 console.log(comboPalls);
 
 function combinePallets(pallets, maxSum) {
-    // Sort the pallets array in descending order by height
     pallets.sort((a, b) => b.height - a.height);
-
     const parcelPallets = [];
-    let i = 0;
 
-    while (i < pallets.length) {
-        // Try to find the best combination
-        if (
-            i + 2 < pallets.length &&
-            pallets[i].height + pallets[i + 1].height + pallets[i + 2].height <= maxSum
-        ) {
-            parcelPallets.push([
-                pallets[i],
-                pallets[i + 1],
-                pallets[i + 2],
-            ]);
-            i += 3;
-        } else if (i + 1 < pallets.length && pallets[i].height + pallets[i + 1].height <= maxSum) {
-            parcelPallets.push([pallets[i], pallets[i + 1]]);
-            i += 2;
+    for (let pallet of pallets) {
+        let bestFitIndex = -1;
+        let minRemainingHeight = maxSum;
+
+        for (let i = 0; i < parcelPallets.length; i++) {
+            const currentHeight = parcelPallets[i].reduce((sum, p) => sum + p.height, 0);
+            const remainingHeight = maxSum - (currentHeight + pallet.height);
+
+            if (remainingHeight >= 0 && remainingHeight < minRemainingHeight) {
+                bestFitIndex = i;
+                minRemainingHeight = remainingHeight;
+            }
+        }
+
+        if (bestFitIndex !== -1) {
+            parcelPallets[bestFitIndex].push(pallet);
         } else {
-            parcelPallets.push([pallets[i]]);
-            i += 1;
+            parcelPallets.push([pallet]);
         }
     }
 
     return parcelPallets;
 }
 
-// Another approach (sort of Greedy)
-// let comboPalls = combineSkvettPalls(skvettPalls, 1400);
-// console.log(comboPalls);
-// function combineSkvettPalls(skvettPalls, maxSum) {
-//     // Sort the array in descending order
-//     skvettPalls.sort((a, b) => b - a);
-
-//     let combinedSkvettPalls = [];
-//     let i = 0;
-
-//     while (i < skvettPalls.length) {
-//         // Try to find the best combination
-//         if (i + 2 < skvettPalls.length && skvettPalls[i].height + skvettPalls[i + 1].height + skvettPalls[i + 2].height < maxSum) {
-//             combinedSkvettPalls.push([skvettPalls[i], skvettPalls[i + 1], skvettPalls[i + 2]]);
-//             i += 3;
-//         } else if (i + 1 < skvettPalls.length && skvettPalls[i] + skvettPalls[i + 1] < maxSum) {
-//             combinedSkvettPalls.push([skvettPalls[i], skvettPalls[i + 1]]);
-//             i += 2;
-//         } else {
-//             combinedSkvettPalls.push([skvettPalls[i]]);
-            
-//             i += 1;
-//         }
-//     }
-
-//     return combinedSkvettPalls;
-// }
-
-
-// This is my mediocre approach ;)
-// for (let i = 0; i < skvettPalls.length - 1; i++) {
-//     // First pall is the highest pall, fetch it and stack it over the next pall,
-//     // If they do not exceed the max height, put them in a combo pall,
-//     // Check if the combo pall can be stacked over a third pall,
-//     // If so add third pall to the combo pall, so combo pall becomes three palls.
-
-//     const skvettPall = skvettPalls[i];
-
-//     if (skvettPall.plock) continue;
-//     let currentHeight = skvettPall.height;
-
-//     // Check if the first pall can be stacked over any of the un plocked palls.
-//     for (let j = i + 1; j < skvettPalls.length; j++) {
-//         if (skvettPall.plock) break;
-
-//         const otherSkvetPall = skvettPalls[j];
-
-//         const comboPall = [];
-
-//         const otherHeight = otherSkvetPall.getHeight();
-
-//         // Check if the two palls stacked over each other does not exceed the max height
-//         if (currentHeight + otherHeight < MAX_HEIGHT) {
-
-//             skvettPall.plock = true;
-//             otherSkvetPall.plock = true;
-
-//             // Add the two palls to the combo pall.
-//             comboPall.push(new SkvettPall(skvettPall.prodId, skvettPall.quantity, skvettPall.height));
-//             comboPall.push(new SkvettPall(otherSkvetPall.prodId, otherSkvetPall.quantity, otherSkvetPall.height));
-
-//             // Apply a tribbel pall
-//             for (let k = j + 1; k < skvettPalls.length; k++) {
-//                 const nextSkvettPall = skvettPalls[k];
-//                 if (nextSkvettPall.plock) continue;
-
-//                 const nextHeight = nextSkvettPall.getHeight();
-
-//                 if (currentHeight + otherHeight + nextHeight < MAX_HEIGHT) {
-//                     // Add a third pall on the combo pall.
-//                     comboPall.push(new SkvettPall(nextSkvettPall.prodId, nextSkvettPall.quantity, nextSkvettPall.height));
-
-//                     // Tag the third pall as plocked.
-//                     nextSkvettPall.plock = true;
-//                     break;
-//                 }
-//             }
-
-//             comboPalls.push([...comboPall]);
-//         }
-//     }
-// }
-
-// const notMatched = [];
-// // Check if there are any palls that doesn't have a match pair.
-// for (const skvettPall of skvettPalls) {
-//     if (!skvettPall.plock) {
-//         notMatched.push(new SkvettPall(skvettPall.prodId, skvettPall.quantity, skvettPall.height));
-//     }
-// }
-
-
-// Print the results into the text area.
 let outputArea = document.getElementById("output");
+outputArea.value = formatOutput(fullPalls, comboPalls, mixProducts);
 
-
-outputArea.value = "Full Palls: \n";
-for (const fullPall of fullPalls) {
-    let output = `${fullPall.prodId}: `;
-    for (let i = 0; i < fullPall.quantity; i++) {
-        output += `${fullPall.boxesInFullPall} `;
+function formatOutput(fullPalls, comboPalls, mixProducts) {
+    let output = "Full Palls: \n";
+    for (const fullPall of fullPalls) {
+        output += `${fullPall.prodId}: ${Array(fullPall.quantity).fill(fullPall.boxesInFullPall).join(' ')}\n`;
     }
-    outputArea.value += output + "\n";
-}
 
-// outputArea.value += "\n\nSelf Contained Palls: \n";
-// for (const enskildPall of notMatched) {
-//     outputArea.value += (`${enskildPall.prodId}: ${enskildPall.quantity}`);
-//     outputArea.value += ("\n___________________\n");
-// }
-
-outputArea.value += "\n\nCombo Palls: \n\n";
-for (const combo of comboPalls) {
-    for (const skvettPall of combo) {
-        outputArea.value += (`\n${skvettPall.prodId}:${skvettPall.quantity}\n`);
+    output += "\n\nCombo Palls: \n";
+    for (const combo of comboPalls) {
+        for (const skvettPall of combo) {
+            output += `\n${skvettPall.prodId}: ${skvettPall.quantity}\n`;
+        }
+        output += "__________________\n";
     }
-    outputArea.value += ("__________________\n");
+
+    output += "\n\nMix Pall: \n\n";
+    for (const mixProduct of mixProducts) {
+        output += `${mixProduct.prodId}: ${mixProduct.quantity}\n`;
+    }
+    return output;
 }
-
-outputArea.value += "\n\nMix Pall: \n\n";
-for (const mixProduct of mixProducts) {
-    outputArea.value += (`${mixProduct.prodId}: ${mixProduct.quantity}\n`);
-}
-
-
 
 function getProduct(productId, products) {
-    for (let i = 0; i < products.length; i++) {
-        const product = products[i];
-        const currentId = product.getId();
-
-        if (currentId === productId) {
+    for (const product of products) {
+        if (product.getId() === productId) {
             return product;
         }
     }
@@ -537,13 +347,10 @@ function getProduct(productId, products) {
 }
 
 function getFullPall(prodId, fullPalls) {
-    for (let i = 0; i < fullPalls.length; i++) {
-        const pall = fullPalls[i];
+    for (const pall of fullPalls) {
         if (pall.getProdId() === prodId) {
             return pall;
         }
     }
     return null;
 }
-
-

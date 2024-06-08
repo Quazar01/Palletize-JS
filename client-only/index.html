@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Uploader</title>
+
+    <style>
+      *{
+        text-align: center;
+      }
+      #output{
+        font-size: large;
+      }
+    </style>
+    <!-- Add pdfjs-dist from a CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
+    <script>
+        // Specify the workerSrc property
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js';
+    </script>
+</head>
+<body>
+    <h1>Upload PDF</h1>
+    <form id="pdfForm">
+        <input type="file" id="pdfFile" name="pdfFile" accept="application/pdf">
+        <button type="submit">Upload</button>
+    </form>
+    <textarea id="output" rows="100%" cols="100%"></textarea>
+    <script src="app.js"></script>
+</body>
+</html>
