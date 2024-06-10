@@ -121,7 +121,7 @@ class Order {
 }
 
 const emptyPallet = new EmptyPallet(1200, 800, 144);
-const MAX_HEIGHT = 1400;
+const MAX_HEIGHT = 1430;
 
 const red = new Box(400, 300, 156, 8, 64, 8);
 const green = new Box(600, 400, 180, 7, 28, 4);
