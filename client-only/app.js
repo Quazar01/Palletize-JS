@@ -62,6 +62,7 @@ class SkvettPall {
 }
 
 class FullPall {
+
   constructor(prodId, quantity, numOfBoxes) {
     this.prodId = prodId;
     this.quantity = quantity;
@@ -78,6 +79,14 @@ class FullPall {
 
   setQuantity(quantity) {
     this.quantity = quantity;
+  }
+
+  getNotFull(){
+    return this.notFull;
+  }
+
+  setNotFull(notFull){
+    this.notFull = notFull;
   }
 }
 
@@ -269,25 +278,26 @@ function fixaPlockListan() {
       // Update the quantity after subtracting the full pallets.
       // e.g ordered 1168 : 93, then full palls is 1, new quantity is (93 - 64 = 29)
       order.quantity = order.quantity % product.getBox().fullPall;
+
       // Update the stack height of the new quantity,e.g 29 boxes of 1168 is 3 boxes heigh.
       stackHeight = Math.ceil(order.quantity / product.getBox().boxesInRow);
 
       // If the remainder can't be stacked on it. e.g 1311 : 49
-      if ((product.getBox().boxesInRow === 8 && stackHeight > 6) || // for red.
-      (product.getBox().boxesInRow === 4 && stackHeight > 5) ||     // for green.
-      (product.getBox().maxStackHeight == 16 && stackHeight > 12) || // for renrum.
-      (product.getBox().maxStackHeight == 6 && stackHeight > 4))     // for black.
+      // Put the remainder pall in the full pallets list.
+      if (product.getBox() === red && stackHeight > 6 || // for red.
+      product.getBox() === green && stackHeight > 5 ||     // for green.
+      product.getBox() === renrum && stackHeight > 12 || // for renrum.
+      product.getBox() === black && stackHeight > 4)     // for black.
       
       {
-        // Put the remainder pall in the full pallets list.
         const fullPall = getFullPall(order.getProdId(), fullPalls);
         if (fullPall !== null) {
-          fullPall.quantity += 1;
-
+          fullPall.setNotFull(order.quantity);
           order.quantity = 0;
         }
       } else {
-        // If the remainder can be stacked 
+        // If the remainder can be stacked, 
+        // handle it using handleSkvettOrMixPall method.
         stackHeight = Math.ceil(order.quantity / product.getBox().boxesInRow);
         handleSkvettOrMixPall(order, product, stackHeight);
       }
@@ -299,7 +309,7 @@ function fixaPlockListan() {
   });
 
   // combinePallets stack the skvett pallets over each other as long as they don't exceed height of 1400 mm in the most efficient way so the result is as least parcels (kolli) as possible.
-  comboPalls = combinePallets(skvettPalls, 1400);
+  comboPalls = combinePallets(skvettPalls, MAX_HEIGHT);
 
   console.log("SRS Pall: ", skvettPalls.length);
   console.log("Kolli: ", comboPalls.length);
@@ -336,7 +346,7 @@ function handleSkvettOrMixPall(order, product, stackHeight) {
     order.quantity = 0;
 
   } else {
-    const skvettHeight = product.getBox().height * stackHeight + emptyPallet.height;
+    const skvettHeight = (product.getBox().height * stackHeight) + emptyPallet.height;
     skvettPalls.push(new SkvettPall(order.getProdId(), order.quantity, skvettHeight));
   }
 }
@@ -344,28 +354,32 @@ function handleSkvettOrMixPall(order, product, stackHeight) {
 // Combining the skvett pallets in the Best Fit Descending (BFD) approach,
 // to get the least possible number of parcels to be shipped.
 function combinePallets(pallets, maxSum) {
+  // Step 1: Sort the pallets array in descending order by height
   pallets.sort((a, b) => b.getHeight() - a.getHeight());
+
   const parcelPallets = [];
 
+  // Step 2: For each pallet, find the best fit bin (pallet stack)
   for (let pallet of pallets) {
-    let bestFitIndex = -1;
-    let minRemainingHeight = maxSum;
+      let bestFitIndex = -1;
+      let minRemainingHeight = maxSum;
 
-    for (let i = 0; i < parcelPallets.length; i++) {
-      const currentHeight = parcelPallets[i].reduce((sum, p) => sum + p.getHeight(), 0);
-      const remainingHeight = maxSum - (currentHeight + pallet.getHeight());
+      for (let i = 0; i < parcelPallets.length; i++) {
+          const currentHeight = parcelPallets[i].reduce((sum, p) => sum + p.getHeight(), 0);
+          const remainingHeight = maxSum - (currentHeight + pallet.getHeight());
 
-      if (remainingHeight >= 0 && remainingHeight < minRemainingHeight) {
-        bestFitIndex = i;
-        minRemainingHeight = remainingHeight;
+          if (remainingHeight >= 0 && remainingHeight < minRemainingHeight) {
+              bestFitIndex = i;
+              minRemainingHeight = remainingHeight;
+          }
       }
-    }
 
-    if (bestFitIndex !== -1) {
-      parcelPallets[bestFitIndex].push(pallet);
-    } else {
-      parcelPallets.push([pallet]);
-    }
+      // Step 3: Place the pallet in the best fit bin or create a new bin
+      if (bestFitIndex !== -1) {
+          parcelPallets[bestFitIndex].push(pallet);
+      } else {
+          parcelPallets.push([pallet]);
+      }
   }
 
   return parcelPallets;
@@ -377,10 +391,18 @@ function displayResults() {
 }
 
 function formatOutput(fullPalls, comboPalls, mixProducts) {
+
   let output = "Full Palls: \n";
   for (const fullPall of fullPalls) {
     output += `${fullPall.getProdId()}: ${Array(fullPall.getQuantity()).fill(fullPall.boxesInFullPall).join(' ')}`;
-    output += " (" + `${fullPall.quantity}` + ").\n";
+
+    if (fullPall.notFull != null){
+      output += ` ${fullPall.getNotFull()}`;
+      output += " (" + `${fullPall.quantity + 1}` + ").\n";
+    }
+    else{
+      output += " (" + `${fullPall.quantity}` + ").\n";
+    }
   }
 
   output += "\n\nCombo Palls: \n";
