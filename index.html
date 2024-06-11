@@ -1,60 +1,46 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>File Upload and Output</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel File Upload</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script defer src="app.js"></script>
     <style>
-        textarea {
-            width: 100%;
-            height: 1400px;
-            font-family: monospace;
-            background-color: rgb(157, 191, 253);
-            font-size: large;
-        }
+      textarea {
+          
+          margin: 0 auto;
+          display: block;
+          width: 80%;
+          height: calc(100vh - 200px);
+          font-family: monospace;
+          background-color: lightsteelblue;
+          font-size: large;
+          resize: vertical;
+          overflow-y: auto;
+      }
 
-        #output {
-            color: rgb(40, 1, 1);
-            text-align: center;
-        }
-    </style>
-
+      #output {
+          color: rgb(40, 1, 1);
+          text-align: center;
+      }
+  </style>
 </head>
-
 <body>
-    <h1 style="color: red;">Fixa Plocklista</h1>
-    <input type="file" id="file-input" accept=".xlsx,.xls" />
+    <h1 style="text-align: center;">Plocklista Generator</h1>
+    <div style="text-align: center;">
 
-    <h1>Enter Input</h1>
-    <input type="text" id="orderInput" placeholder="Enter input like 1311:64">
-    <button onclick="addOrder()">Submit</button>
-    <pre id="jsonOutput"></pre>
-
+      <h2>Välj vilken typ av pallar som ska användas</h2>
+      <input id="comboRadio" type="radio" name="palletType" value="combo" checked> Combo Pallets
+      <input type="radio" name="palletType" value="individual"> Enskild Pall
+  
+    </div>
     
-    <textarea id="output" readonly>
-
-    </textarea>
-
-
-    <!-- <script>
-        const fileInput = document.getElementById("fileInput");
-        const output = document.getElementById("output");
-
-        fileInput.addEventListener("change", (event) => {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = () => {
-                output.value = reader.result;
-            };
-
-            reader.onerror = () => {
-                output.value = "Error reading the file.";
-            };
-
-            reader.readAsText(file);
-        });
-    </script> -->
-    <script src="script.js"></script>
+    <form id="excelForm" style="padding: 2em; text-align: center;">
+        <input type="file" id="excelFile" accept=".xlsx, .xls">
+        <button type="submit">Upload</button>
+    </form>
+    
+    <textarea id="output" rows="20" cols="50"></textarea>
 </body>
-
 </html>
