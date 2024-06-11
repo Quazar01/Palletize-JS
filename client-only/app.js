@@ -1,5 +1,5 @@
 // Todo: 
-// Fix the number of boxes in full palls, 28, 28, 25, shouldn't be 28, 28, 28.
+// Add all the products in the products array.
 
 class EmptyPallet {
   constructor(length, width, height) {
@@ -41,11 +41,11 @@ class Product {
 }
 
 class SkvettPall {
-  constructor(prodId, quantity, height) {
+  constructor(prodId, quantity, height, stackHeight) {
     this.prodId = prodId;
     this.quantity = quantity;
     this.height = height;
-    this.plock = false;
+    this.stackHeight = stackHeight;
   }
 
   getProdId() {
@@ -63,10 +63,11 @@ class SkvettPall {
 
 class FullPall {
 
-  constructor(prodId, quantity, numOfBoxes) {
+  constructor(prodId, quantity, numOfBoxes, height) {
     this.prodId = prodId;
     this.quantity = quantity;
     this.boxesInFullPall = numOfBoxes;
+    this.height = height;
   }
 
   getProdId() {
@@ -120,8 +121,9 @@ class Order {
   }
 }
 
-const emptyPallet = new EmptyPallet(1200, 800, 144);
-const MAX_HEIGHT = 1430;
+const EUPallet = new EmptyPallet(1200, 800, 144);
+const MAX_HEIGHT = 1400;
+const EnPlats = MAX_HEIGHT * 2;
 
 const red = new Box(400, 300, 156, 8, 64, 8);
 const green = new Box(600, 400, 180, 7, 28, 4);
@@ -137,6 +139,10 @@ let mixProducts = [];
 let comboPalls = [];
 
 let products = [
+  new Product("thai", 1011, red),
+  new Product("thai", 10622, green),
+  new Product("thai", 1151, red),
+  new Product("thai", 9852, red),
   new Product("thai", 1266, red),
   new Product("wings", 1286, red),
   new Product("fars", 1311, red),
@@ -146,7 +152,7 @@ let products = [
   new Product("helfagelLidl", 3947, green),
   new Product("helfagelMajs", 3948, green),
   new Product("helfagelNatural", 3941, green),
-  new Product("tolvelva", 1211, black),
+  new Product("tolvelva", 1211, red),
   new Product("elva76", 1176, black),
   new Product("benLidl", 4751, black),
   new Product("elva67", 1167, blue),
@@ -193,65 +199,63 @@ let products = [
   new Product("brostfile", 1052, green)
 ];
 
-// Handeling the uploaded document.
-document.getElementById('pdfForm').addEventListener('submit', async (event) => {
+document.getElementById('excelForm').addEventListener('submit', async (event) => {
   event.preventDefault();
-  const fileInput = document.getElementById('pdfFile');
+  const fileInput = document.getElementById('excelFile');
   if (fileInput.files.length === 0) {
-    alert('Please select a file!');
-    return;
+      alert('Please select a file!');
+      return;
   }
 
   const file = fileInput.files[0];
   const arrayBuffer = await file.arrayBuffer();
 
   try {
-    await processPdf(arrayBuffer);
+      const result = await processExcel(arrayBuffer);
 
-    // Basically, the main function!
-    fixaPlockListan();
+      // Basically, the main function!
+      fixaPlockListan();
 
   } catch (error) {
-    console.error('Error extracting text from PDF:', error);
-    alert('There was an error extracting text from the PDF. Check the console for details.');
+      console.error('Error processing Excel file:', error);
+      alert('There was an error processing the Excel file. Check the console for details.');
   }
 });
 
-// I don't know what the fuck is going on in here.
-async function processPdf(arrayBuffer) {
-  // Load the PDF document
-  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-  const pdfDoc = await loadingTask.promise;
-  let extractedText = '';
+async function processExcel(arrayBuffer) {
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const sheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[sheetName];
+  const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-  for (let i = 1; i <= pdfDoc.numPages; i++) {
-    const page = await pdfDoc.getPage(i);
-    const textContent = await page.getTextContent();
-    const pageText = textContent.items.map(item => item.str).join(' ');
-    extractedText += pageText + '\n';
-  }
-
-  const result = extractArtikelAndDFP(extractedText);
-
-  // Store the result in the orders array
+  const result = extractArtikelAndDFP(jsonData);
+    // Store the result in the orders array
   orders.length = 0;  // Clear the existing array
   result.forEach(order => orders.push(new Order(order.prodId, order.quantity)));
+  return result;
 }
 
-// Neither here!
-function extractArtikelAndDFP(text) {
-  const lines = text.split('\n');
+function extractArtikelAndDFP(data) {
   const result = [];
 
-  lines.forEach(line => {
-    const parts = line.trim().split(/\s+/);
-    for (let i = 0; i < parts.length; i++) {
-      if (!isNaN(parts[i]) && !isNaN(parts[i + 1])) {
-        result.push({ prodId: parseInt(parts[i]), quantity: parseInt(parts[i + 1]) });
-        i++; // Skip the next index as it's already processed
+  // Assuming the first row contains headers
+  const headers = data[0];
+  const artikelIndex = headers.indexOf("Artikelnummer");
+  const dfpIndex = headers.indexOf("Beställda DFP");
+
+  if (artikelIndex === -1 || dfpIndex === -1) {
+      throw new Error("Required columns not found in the Excel sheet.");
+  }
+
+  for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const prodId = parseInt(row[artikelIndex]);
+      const quantity = parseInt(row[dfpIndex]);
+
+      if (!isNaN(prodId) && !isNaN(quantity)) {
+          result.push({ prodId, quantity });
       }
-    }
-  });
+  }
 
   return result;
 }
@@ -274,7 +278,8 @@ function fixaPlockListan() {
     // If the quantity can be one or more full pallets.
     if (parseInt((order.quantity / product.getBox().fullPall)) != 0) {
       // Put them in the fullPalls list.
-      fullPalls.push(new FullPall(order.getProdId(), Math.floor(order.quantity / product.getBox().fullPall), product.getBox().fullPall));
+      const fullPallHeight = (product.getBox().height * product.getBox().fullPall) + EUPallet.height;
+      fullPalls.push(new FullPall(order.getProdId(), Math.floor(order.quantity / product.getBox().fullPall), product.getBox().fullPall, fullPallHeight));
       // Update the quantity after subtracting the full pallets.
       // e.g ordered 1168 : 93, then full palls is 1, new quantity is (93 - 64 = 29)
       order.quantity = order.quantity % product.getBox().fullPall;
@@ -314,9 +319,11 @@ function fixaPlockListan() {
   console.log("SRS Pall: ", skvettPalls.length);
   console.log("Kolli: ", comboPalls.length);
   
+  console.log("Platser: ", calculatePlatser(skvettPalls, fullPalls, mixProducts));
 
+  const platser = calculatePlatser(skvettPalls, fullPalls, mixProducts);
   // Self-explained.
-  displayResults();
+  displayResults(platser);
 }
 
 function getProduct(productId, products) {
@@ -346,8 +353,8 @@ function handleSkvettOrMixPall(order, product, stackHeight) {
     order.quantity = 0;
 
   } else {
-    const skvettHeight = (product.getBox().height * stackHeight) + emptyPallet.height;
-    skvettPalls.push(new SkvettPall(order.getProdId(), order.quantity, skvettHeight));
+    const skvettHeight = (product.getBox().height * stackHeight) + EUPallet.height;
+    skvettPalls.push(new SkvettPall(order.getProdId(), order.quantity, skvettHeight, stackHeight));
   }
 }
 
@@ -385,14 +392,44 @@ function combinePallets(pallets, maxSum) {
   return parcelPallets;
 }
 
-function displayResults() {
-  let outputArea = document.getElementById("output");
-  outputArea.value = formatOutput(fullPalls, comboPalls, mixProducts);
+function calculatePlatser(skvettPalls, fullPalls, mixProducts) {
+  let totalHeight = 0;
+  let platser = 0;
+  let boxesInMixPall = 0;
+  for (const skvettPall of skvettPalls) {
+    totalHeight += skvettPall.getHeight();
+  }
+
+  for (const fullPall of fullPalls) {
+
+    totalHeight += fullPall.height;
+  }
+
+  for (const mixProduct of mixProducts) {
+    boxesInMixPall += mixProduct.getQuantity();
+  }
+  // Calculate the height of the mix pallet.
+  MixPallHeight = (((boxesInMixPall / 8) + 1) * red.height) + EUPallet.height;
+
+  // Add the height of the mix pallet to the total height.
+  totalHeight += MixPallHeight;
+  // Calculate the number of platser.
+  platser = totalHeight / EnPlats;
+  return platser;
 }
 
-function formatOutput(fullPalls, comboPalls, mixProducts) {
+function displayResults(platser) {
+  let outputArea = document.getElementById("output");
+  outputArea.value = formatOutput(fullPalls, comboPalls, mixProducts, platser);
+}
 
-  let output = "Full Palls: \n";
+function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
+  let output = ``;
+  
+  if (!document.getElementById('comboRadio').checked) {
+    output += `Antal Platser: ${platser.toFixed(2)}\n__________________\n\n`;
+  }
+  output += `Full Palls: \n`;
   for (const fullPall of fullPalls) {
     output += `${fullPall.getProdId()}: ${Array(fullPall.getQuantity()).fill(fullPall.boxesInFullPall).join(' ')}`;
 
@@ -405,10 +442,20 @@ function formatOutput(fullPalls, comboPalls, mixProducts) {
     }
   }
 
-  output += "\n\nCombo Palls: \n";
-  for (const combo of comboPalls) {
-    for (const skvettPall of combo) {
-      output += `\n${skvettPall.getProdId()}: ${skvettPall.getQuantity()}\n`;
+  if (document.getElementById('comboRadio').checked) {
+    output += "\n\nCombo Palls: \n";
+    for (const combo of comboPalls) {
+      for (const skvettPall of combo) {
+        output += `\n${skvettPall.getProdId()}: ${skvettPall.getQuantity()}\n`;
+      }
+      output += "__________________\n";
+    }
+  } else {
+    output += `\n\nEnskild Pall: \n`;
+    skvettPalls.sort((a, b) => b.getHeight() - a.getHeight());
+    for (const skvettPall of skvettPalls) {
+      output += `${skvettPall.getProdId()}: ${skvettPall.getQuantity()} | (${skvettPall.stackHeight})\n`;
+      output += "__________________\n";
     }
     output += "__________________\n";
   }
@@ -417,5 +464,6 @@ function formatOutput(fullPalls, comboPalls, mixProducts) {
   for (const mixProduct of mixProducts) {
     output += `${mixProduct.getProdId()}: ${mixProduct.getQuantity()}\n`;
   }
+
   return output;
 }
