@@ -3,30 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Uploader</title>
-
+    <title>Excel File Upload</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script defer src="app.js"></script>
     <style>
-      *{
-        text-align: center;
+      textarea {
+          
+          margin: 0 auto;
+          display: block;
+          width: 80%;
+          height: calc(100vh - 200px);
+          font-family: monospace;
+          background-color: lightsteelblue;
+          font-size: large;
+          resize: vertical;
+          overflow-y: auto;
       }
-      #output{
-        font-size: large;
+
+      #output {
+          color: rgb(40, 1, 1);
+          text-align: center;
       }
-    </style>
-    <!-- Add pdfjs-dist from a CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
-    <script>
-        // Specify the workerSrc property
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js';
-    </script>
+  </style>
 </head>
 <body>
-    <h1>Upload PDF Here</h1>
-    <form id="pdfForm">
-        <input type="file" id="pdfFile" name="pdfFile" accept="application/pdf">
+    <h1 style="text-align: center;">Plocklista Generator</h1>
+    <div style="text-align: center;">
+
+      <h2>Välj vilken typ av pallar som ska användas</h2>
+      <input id="comboRadio" type="radio" name="palletType" value="combo" checked> Combo Pallets
+      <input type="radio" name="palletType" value="individual"> Enskild Pall
+  
+    </div>
+    
+    <form id="excelForm" style="padding: 2em; text-align: center;">
+        <input type="file" id="excelFile" accept=".xlsx, .xls">
         <button type="submit">Upload</button>
     </form>
-    <textarea id="output" rows="100%" cols="100%"></textarea>
-    <script src="app.js"></script>
+    
+    <textarea id="output" rows="20" cols="50"></textarea>
 </body>
 </html>

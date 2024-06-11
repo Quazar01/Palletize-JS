@@ -317,7 +317,7 @@ let outputArea = document.getElementById("output");
 outputArea.value = formatOutput(fullPalls, comboPalls, mixProducts);
 
 function formatOutput(fullPalls, comboPalls, mixProducts) {
-    let output = "Full Palls: \n";
+    let output = "Full Palls: \n\n";
     for (const fullPall of fullPalls) {
         output += `${fullPall.prodId}: ${Array(fullPall.quantity).fill(fullPall.boxesInFullPall).join(' ')}\n`;
     }
