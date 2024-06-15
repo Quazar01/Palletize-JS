@@ -414,6 +414,57 @@ function displayResults(platser) {
   // outputArea.value = formatOutput(fullPalls, comboPalls, mixProducts, platser);
 }
 
+// function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
+//   let output = ``;
+//   const totalFullPalls = fullPalls.reduce((sum, pall) => sum + pall.getQuantity(), 0);
+
+//   output += `<div class="output-section">`;
+//   if (!document.getElementById('comboRadio').checked) {
+//     output += `<p>Antal Platser: ${platser.toFixed(2)}</p>`;
+//     output += `<p>Antal Kolli: ${totalFullPalls + skvettPalls.length + 1}</p>`;
+//   } else {
+//     output += `<p>Antal Kolli: ${totalFullPalls + comboPalls.length + 1}</p>`;
+//   }
+
+//   output += `<h3>Full Palls:</h3>`;
+//   output += `<table class="table-full-palls"><tr><th>ProdID</th><th>Quantity</th></tr>`;
+//   for (const fullPall of fullPalls) {
+//     let details = fullPall.notFull != null ? `${fullPall.getNotFull()} (${fullPall.quantity + 1})` : `(${fullPall.quantity})`;
+//     output += `<tr><td>${fullPall.getProdId()}</td><td>${fullPall.getQuantity()}</td></tr>`;
+//   }
+//   output += `</table>`;
+
+//   if (document.getElementById('comboRadio').checked) {
+//     output += `<h3>Combo Palls:</h3><table class="table-combo-palls"><tr><th>Combo Details</th></tr>`;
+//     for (const combo of comboPalls) {
+//       output += `<tr><td>`;
+//       for (const skvettPall of combo) {
+//         output += `${skvettPall.getProdId()}: ${skvettPall.getQuantity()}<br>`;
+//       }
+//       output += `</td></tr>`;
+//       output += `<tr><td colspan="3"><hr></td></tr>`; // Inserted line
+
+//     }
+//     output += `</table>`;
+//   } else {
+//     output += `<h3>Enkel Palls:</h3><table class="table-enkel-palls"><tr><th>Product ID</th><th>Quantity</th><th>Stack Height</th></tr>`;
+//     skvettPalls.sort((a, b) => b.getHeight() - a.getHeight());
+//     for (const skvettPall of skvettPalls) {
+//       output += `<tr class="table-row-spacing"><td>${skvettPall.getProdId()}</td><td>${skvettPall.getQuantity()}</td><td>${skvettPall.stackHeight}</td></tr>`;
+//     }
+//     output += `</table>`;
+//   }
+
+//   output += `<h3>Mix Pall:</h3><table class="table-mix-pall"><tr><th>Product ID</th><th>Quantity</th></tr>`;
+//   for (const mixProduct of mixProducts) {
+//     output += `<tr><td>${mixProduct.getProdId()}</td><td>${mixProduct.getQuantity()}</td></tr>`;
+//   }
+//   output += `</table>`;
+//   output += `</div>`;
+
+//   return output;
+// }
+
 function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
   let output = ``;
   const totalFullPalls = fullPalls.reduce((sum, pall) => sum + pall.getQuantity(), 0);
@@ -428,7 +479,7 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
   output += `Full Palls: \n`;
   output += "<ul>"
   for (const fullPall of fullPalls) {
-    output += `<li>${fullPall.getProdId()}: ${Array(fullPall.getQuantity()).fill(fullPall.boxesInFullPall).join(' ')}`;
+    output += `<li class="spacing">${fullPall.getProdId()}: ${Array(fullPall.getQuantity()).fill(fullPall.boxesInFullPall).join(' ')}`;
 
     if (fullPall.notFull != null){
       output += ` ${fullPall.getNotFull()}`;
@@ -444,7 +495,7 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
     output += "\n\n Combo Palls: \n";
     output += "<ul>"
     for (const combo of comboPalls) {
-      output += `<li>`;
+      output += `<li class="spacing">`;
       for (const skvettPall of combo) {
         output += `\n${skvettPall.getProdId()}: ${skvettPall.getQuantity()}<br>`;
       }
@@ -458,7 +509,7 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
     skvettPalls.sort((a, b) => b.getHeight() - a.getHeight());
     output += "<ul>";
     for (const skvettPall of skvettPalls) {
-      output += `<li>${skvettPall.getProdId()}: ${skvettPall.getQuantity()} | (${skvettPall.stackHeight})</li>\n`;
+      output += `<li class="spacing">${skvettPall.getProdId()}: ${skvettPall.getQuantity()} | (${skvettPall.stackHeight})</li>\n`;
       output += "__________________\n";
     }
     output += "</ul>";
@@ -468,7 +519,7 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
   output += "\n\n Mix Pall: \n\n";
   output += "<ul>";
   for (const mixProduct of mixProducts) {
-    output += `<li>${mixProduct.getProdId()}: ${mixProduct.getQuantity()}</li>\n`;
+    output += `<li class="spacing">${mixProduct.getProdId()}: ${mixProduct.getQuantity()}</li>\n`;
   }
   output += "</ul>";
 

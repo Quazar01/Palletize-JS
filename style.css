@@ -1,0 +1,60 @@
+textarea {
+
+  margin: 0 auto;
+  display: block;
+  width: 80%;
+  height: calc(100vh - 200px);
+  font-family: monospace;
+  background-color: lightsteelblue;
+  font-size: large;
+  resize: vertical;
+  overflow-y: auto;
+}
+
+#output {
+  color: rgb(40, 1, 1);
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+input[type="file"]#excelFile {
+  font-size: 16px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-block;
+}
+
+button[type="submit"] {
+  background-color: #4CAF50;
+  /* Green */
+  color: white;
+  padding: 15px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+table {
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+
+}
+.spacing li {
+  padding-top: 10px; /* Increase as needed */
+  padding-bottom: 10px; /* Increase as needed */
+}
