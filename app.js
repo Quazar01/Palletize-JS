@@ -317,7 +317,6 @@ function fixaPlockListan() {
   comboPalls = combinePallets(skvettPalls, MAX_HEIGHT);
 
   console.log("SRS Pall: ", skvettPalls.length);
-  console.log("Kolli: ", comboPalls.length);
   
   console.log("Platser: ", calculatePlatser(skvettPalls, fullPalls, mixProducts));
 
@@ -326,23 +325,14 @@ function fixaPlockListan() {
   displayResults(platser);
 }
 
+// Fetch the wanted product by its id.
 function getProduct(productId, products) {
-  for (const product of products) {
-    if (product.getId() === productId) {
-      return product;
-    }
-  }
-  return null;
+  return products.find(product => product.getId() === productId) || null;
 }
 
 // Fetch the wanted full pall to edit its quantity.
 function getFullPall(prodId, fullPalls) {
-  for (const pall of fullPalls) {
-    if (pall.getProdId() === prodId) {
-      return pall;
-    }
-  }
-  return null;
+  return fullPalls.find(pall => pall.getProdId() === prodId) || null;
 }
 
 // Check if the quantity could be a skvett pall or a mix product.
@@ -361,12 +351,12 @@ function handleSkvettOrMixPall(order, product, stackHeight) {
 // Combining the skvett pallets in the Best Fit Descending (BFD) approach,
 // to get the least possible number of parcels to be shipped.
 function combinePallets(pallets, maxSum) {
-  // Step 1: Sort the pallets array in descending order by height
+  // Sort the pallets array in descending order by height
   pallets.sort((a, b) => b.getHeight() - a.getHeight());
 
   const parcelPallets = [];
 
-  // Step 2: For each pallet, find the best fit bin (pallet stack)
+  // For each pallet, find the best fit bin (pallet stack)
   for (let pallet of pallets) {
       let bestFitIndex = -1;
       let minRemainingHeight = maxSum;
@@ -381,7 +371,7 @@ function combinePallets(pallets, maxSum) {
           }
       }
 
-      // Step 3: Place the pallet in the best fit bin or create a new bin
+      // Place the pallet in the best fit bin or create a new bin
       if (bestFitIndex !== -1) {
           parcelPallets[bestFitIndex].push(pallet);
       } else {
@@ -420,50 +410,67 @@ function calculatePlatser(skvettPalls, fullPalls, mixProducts) {
 
 function displayResults(platser) {
   let outputArea = document.getElementById("output");
-  outputArea.value = formatOutput(fullPalls, comboPalls, mixProducts, platser);
+  outputArea.innerHTML = formatOutput(fullPalls, comboPalls, mixProducts, platser);
+  // outputArea.value = formatOutput(fullPalls, comboPalls, mixProducts, platser);
 }
 
 function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
   let output = ``;
-  
+  const totalFullPalls = fullPalls.reduce((sum, pall) => sum + pall.getQuantity(), 0);
+
   if (!document.getElementById('comboRadio').checked) {
-    output += `Antal Platser: ${platser.toFixed(2)}\n__________________\n\n`;
+    output += `Antal Platser: ${platser.toFixed(2)}<br><br>\n\n`;
+    output += `Antal Kolli: ${totalFullPalls + skvettPalls.length + 1}<br><br>\n\n`;
+  }
+  else {
+    output += `Antal Kolli: ${totalFullPalls + comboPalls.length + 1}<br><br>\n\n`;
   }
   output += `Full Palls: \n`;
+  output += "<ul>"
   for (const fullPall of fullPalls) {
-    output += `${fullPall.getProdId()}: ${Array(fullPall.getQuantity()).fill(fullPall.boxesInFullPall).join(' ')}`;
+    output += `<li>${fullPall.getProdId()}: ${Array(fullPall.getQuantity()).fill(fullPall.boxesInFullPall).join(' ')}`;
 
     if (fullPall.notFull != null){
       output += ` ${fullPall.getNotFull()}`;
-      output += " (" + `${fullPall.quantity + 1}` + ").\n";
+      output += " (" + `${fullPall.quantity + 1}` + ").</li>\n";
     }
     else{
-      output += " (" + `${fullPall.quantity}` + ").\n";
+      output += " (" + `${fullPall.quantity}` + ").</li>\n";
     }
   }
+  output += "</ul>"
 
   if (document.getElementById('comboRadio').checked) {
-    output += "\n\nCombo Palls: \n";
+    output += "\n\n Combo Palls: \n";
+    output += "<ul>"
     for (const combo of comboPalls) {
+      output += `<li>`;
       for (const skvettPall of combo) {
-        output += `\n${skvettPall.getProdId()}: ${skvettPall.getQuantity()}\n`;
+        output += `\n${skvettPall.getProdId()}: ${skvettPall.getQuantity()}<br>`;
       }
+      output += "</li>";
       output += "__________________\n";
     }
+    output += "</ul>"
   } else {
-    output += `\n\nEnskild Pall: \n`;
+    
+    output += `\n\n Enkel Palls: \n`;
     skvettPalls.sort((a, b) => b.getHeight() - a.getHeight());
+    output += "<ul>";
     for (const skvettPall of skvettPalls) {
-      output += `${skvettPall.getProdId()}: ${skvettPall.getQuantity()} | (${skvettPall.stackHeight})\n`;
+      output += `<li>${skvettPall.getProdId()}: ${skvettPall.getQuantity()} | (${skvettPall.stackHeight})</li>\n`;
       output += "__________________\n";
     }
-    output += "__________________\n";
+    output += "</ul>";
+    console.log()
   }
 
-  output += "\n\nMix Pall: \n\n";
+  output += "\n\n Mix Pall: \n\n";
+  output += "<ul>";
   for (const mixProduct of mixProducts) {
-    output += `${mixProduct.getProdId()}: ${mixProduct.getQuantity()}\n`;
+    output += `<li>${mixProduct.getProdId()}: ${mixProduct.getQuantity()}</li>\n`;
   }
+  output += "</ul>";
 
   return output;
 }
