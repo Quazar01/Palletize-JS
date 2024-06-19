@@ -83,24 +83,68 @@ button[type="upload-button"]:hover {
   color: #000000;
 }
 
-
 ul {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Modified */
 }
-
 li {
   border: 1px solid rgb(150, 134, 134);
   margin: 0px 30em 10px 30em;
-  /* margin-block-end: 10px; */
-  padding: 10px;
   border-radius: 20px;
+  padding: 10px;
+  width: 30%;
   background-color: #d4d4d4;
+  /* margin: 0 1em 1em 0; */
+}
+@media screen and (min-width: 1200px) {
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  li {
+    width: 30%;
+    margin: 0 1em 1em 0;
+  }
+}
+@media screen and (min-width: 1200px) {
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  li {
+    width: 30%;
+    margin: 0px 20em 10px 20em;
+
+  }
 }
 
-@media (max-width: 1375px) {
+@media screen and (max-width: 1199px) and (min-width: 768px) {
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
   li {
+    width: 45%;
     margin: 0px 10em 10px 10em;
+
+  }
+}
+
+@media screen and (max-width: 767px) {
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  li {
+    width: 90%;
+    margin: 0 0 1em 0;
   }
 }
 

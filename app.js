@@ -248,10 +248,10 @@ dropZone.addEventListener('dragleave', (event) => {
   event.preventDefault();
 });
 function updateDropZoneWithFileName() {
-  var fileInput = document.getElementById('excelFile');
-  var dropZone = document.getElementById('dropZone');
+  let fileInput = document.getElementById('excelFile');
+  let dropZone = document.getElementById('dropZone');
   if (fileInput.files.length > 0) {
-      var fileName = fileInput.files[0].name;
+      let fileName = fileInput.files[0].name;
       dropZone.innerHTML = fileName;
   }
 }
@@ -325,10 +325,8 @@ function extractArtikelAndDFP(data) {
     const quantity = parseInt(row[dfpIndex]);
 
     if (!isNaN(prodId) && !isNaN(quantity)) {
-      // e.g ordered 1168 : 93, then full palls is 1, new quantity is (93 - 64 = 29)
       result.push({ prodId, quantity });
     }
-    // Update the stack height of the new quantity,e.g 29 boxes of 1168 is 3 boxes heigh.
   }
 
   return result;
@@ -354,9 +352,12 @@ function fixaPlockListan() {
       // Put them in the fullPalls list.
       const fullPallHeight = (product.getBox().height * product.getBox().fullPall) + EUPallet.height;
       fullPalls.push(new FullPall(order.getProdId(), Math.floor(order.quantity / product.getBox().fullPall), product.getBox().fullPall, fullPallHeight));
+      
       // Update the quantity after subtracting the full pallets.
+      // e.g ordered 1168 : 93, then full palls is 1, new quantity is (93 - 64 = 29)
       order.quantity = order.quantity % product.getBox().fullPall;
-
+  
+      // Update the stack height of the new quantity,e.g 29 boxes of 1168 is 3 boxes heigh.
       stackHeight = Math.ceil(order.quantity / product.getBox().boxesInRow);
 
       // If the remainder can't be stacked on it. e.g 1311 : 49
