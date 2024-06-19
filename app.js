@@ -508,7 +508,7 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
     output += `<br><br>Antal Kolli: <i>${totalFullPalls + comboPalls.length + 1}</i><br><br>\n\n`;
   }
 
-  output += `Full Pall: \n`;
+  output += `<p class='headText'>Full Pall:</p>\n`;
   output += "<ul>"
   for (const fullPall of fullPalls) {
     output += `<li class="fullPalls">${fullPall.getProdId()}: ${Array(fullPall.getQuantity()).fill(fullPall.boxesInFullPall).join(' ')}`;
@@ -524,7 +524,7 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
   output += "</ul>"
 
   if (document.getElementById('comboRadio').checked) {
-    output += "\n\n Combo Pall: \n";
+    output += "\n\n <p class='headText'>Combo Pall: </p>\n";
     output += "<ul>"
     for (const combo of comboPalls) {
       output += `<li class="comboPalls">`;
@@ -537,7 +537,7 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
     output += "</ul>"
   } else {
 
-    output += `\n\n Enkel Pall: \n`;
+    output += `\n\n<p class='headText'> Enkel Pall: </p>\n`;
     skvettPalls.sort((a, b) => b.getHeight() - a.getHeight());
     output += "<ul>";
     for (const skvettPall of skvettPalls) {
