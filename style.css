@@ -1,5 +1,8 @@
 * {
   font-size: 1.1em;
+  font-family: 'Arial', sans-serif;
+  color: #0c0303;
+  background-color: rgb(90, 165, 165);
 }
 
 .radio{
@@ -87,11 +90,12 @@ ul {
 }
 
 li {
-  border: 1px solid gray;
-  margin-left: 15em;
-  margin-right: 15em;
-  margin-block-end: 10px;
+  border: 1px solid rgb(150, 134, 134);
+  margin: 0px 30em 10px 30em;
+  /* margin-block-end: 10px; */
   padding: 10px;
+  border-radius: 20px;
+  background-color: #d4d4d4;
 }
 
 
