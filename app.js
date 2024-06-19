@@ -230,7 +230,7 @@ let products = [
   new Product("brostfile", 4788, red),
   new Product("brostfile", 4798, red),
   new Product("brostfile", 4792, red),
-  
+
 ];
 // Drag and Drop Logic
 const dropZone = document.getElementById('dropZone');
@@ -247,12 +247,14 @@ dropZone.addEventListener('dragover', (event) => {
 dropZone.addEventListener('dragleave', (event) => {
   event.preventDefault();
 });
+
+
 function updateDropZoneWithFileName() {
   let fileInput = document.getElementById('excelFile');
   let dropZone = document.getElementById('dropZone');
   if (fileInput.files.length > 0) {
-      let fileName = fileInput.files[0].name;
-      dropZone.innerHTML = fileName;
+    let fileName = fileInput.files[0].name;
+    dropZone.innerHTML = fileName;
   }
 }
 dropZone.addEventListener('drop', async (event) => {
@@ -352,11 +354,11 @@ function fixaPlockListan() {
       // Put them in the fullPalls list.
       const fullPallHeight = (product.getBox().height * product.getBox().fullPall) + EUPallet.height;
       fullPalls.push(new FullPall(order.getProdId(), Math.floor(order.quantity / product.getBox().fullPall), product.getBox().fullPall, fullPallHeight));
-      
+
       // Update the quantity after subtracting the full pallets.
       // e.g ordered 1168 : 93, then full palls is 1, new quantity is (93 - 64 = 29)
       order.quantity = order.quantity % product.getBox().fullPall;
-  
+
       // Update the stack height of the new quantity,e.g 29 boxes of 1168 is 3 boxes heigh.
       stackHeight = Math.ceil(order.quantity / product.getBox().boxesInRow);
 
@@ -395,8 +397,32 @@ function fixaPlockListan() {
   console.log("Platser: ", calculatePlatser(skvettPalls, fullPalls, mixProducts));
 
   const platser = calculatePlatser(skvettPalls, fullPalls, mixProducts);
-  // Self-explained.
+
   displayResults(platser);
+
+  async function crossSelectedPall(event) {
+    try {
+      const element = event.target;
+      const text = element.textContent;
+
+      // Check if the text is already underlined
+      const isUnderlined = element.style.textDecoration === 'line-through';
+      
+      // Toggle the underline style
+      element.style.textDecoration = isUnderlined ? 'none' : 'line-through';
+
+      // Optionally, you can perform additional async operations here
+    } catch (error) {
+      console.error('Error occurred:', error);
+    }
+  }
+
+  const elements = document.querySelectorAll('.line-through');
+  elements.forEach(element => {
+    element.addEventListener('click', crossSelectedPall);
+  });
+
+
 }
 
 // Fetch the wanted product by its id.
@@ -511,7 +537,7 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
   output += `<p class='headText'>Full Pall:</p>\n`;
   output += "<ul>"
   for (const fullPall of fullPalls) {
-    output += `<li class="fullPalls">${fullPall.getProdId()}: ${Array(fullPall.getQuantity()).fill(fullPall.boxesInFullPall).join(' ')}`;
+    output += `<li class="line-through">${fullPall.getProdId()}: ${Array(fullPall.getQuantity()).fill(fullPall.boxesInFullPall).join(' ')}`;
 
     if (fullPall.notFull != null) {
       output += ` ${fullPall.getNotFull()}`;
@@ -527,7 +553,7 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
     output += "\n\n <p class='headText'>Combo Pall: </p>\n";
     output += "<ul>"
     for (const combo of comboPalls) {
-      output += `<li class="comboPalls">`;
+      output += `<li class="line-through">`;
       for (const skvettPall of combo) {
         output += `\n${skvettPall.getProdId()}: ${skvettPall.getQuantity()}<br>`;
       }
@@ -538,23 +564,22 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
   } else {
 
     output += `\n\n<p class='headText'> Enkel Pall: </p>\n`;
+    // Sort the pallets by height in descending order.
     skvettPalls.sort((a, b) => b.getHeight() - a.getHeight());
+    
     output += "<ul>";
     for (const skvettPall of skvettPalls) {
-      output += `<li class="comboPalls">${skvettPall.getProdId()}: ${skvettPall.getQuantity()} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${skvettPall.stackHeight})</li>\n`;
-
+      output += `<li class="line-through">${skvettPall.getProdId()}: ${skvettPall.getQuantity()} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${skvettPall.stackHeight})</li>\n`;
     }
     output += "</ul>";
-    console.log()
   }
 
   output += "\n\n Mix Pall: \n\n";
   output += "<ul>";
   for (const mixProduct of mixProducts) {
-    output += `<li>${mixProduct.getProdId()}: ${mixProduct.getQuantity()}</li>\n`;
+    output += `<li class='line-through'>${mixProduct.getProdId()}: ${mixProduct.getQuantity()}</li>\n`;
   }
   output += "</ul>";
-
   return output;
 }
 
