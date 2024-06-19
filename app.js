@@ -169,7 +169,7 @@ let products = [
   new Product("thai", 9852, red),
   new Product("brostfile", 1043, red),
   new Product("brostfile", 1047, green),
-  new Product("brostfile", 1052, green)
+  new Product("brostfile", 1052, green),
   new Product("brostfile", 1057, green),
   new Product("klubbor", 10422, green),
   new Product("thai", 10622, green),
