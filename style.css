@@ -1,26 +1,8 @@
-textarea {
-
-  margin: 0 auto;
-  display: block;
-  width: 80%;
-  height: calc(100vh - 200px);
-  font-family: monospace;
-  background-color: lightsteelblue;
-  font-size: large;
-  resize: vertical;
-  overflow-y: auto;
+* {
+  font-size: 1.1em;
 }
-
-#output {
-  color: rgb(40, 1, 1);
+form {
   text-align: center;
-  font-size: 1.5em;
-  font-weight: bold;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
 }
 
 input[type="file"]#excelFile {
@@ -32,6 +14,29 @@ input[type="file"]#excelFile {
   display: inline-block;
 }
 
+#dropZone {
+  border: 2px dashed #ffc9c9;
+  padding: 2em;
+  margin-left:15em;
+  margin-right:15em;
+  margin: 2em 15em;
+  text-align: center;
+  background-color: #f6f7fe;
+  color: #555;
+  font-size: 1.2em;
+  border-radius: 30px;
+}
+
+#dropZone:hover {
+  border-color: #ffc9c9;
+  background-color: #eceffd;
+  cursor: pointer;
+}
+
+#dropZone p {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
 button[type="submit"] {
   background-color: #4CAF50;
   /* Green */
@@ -48,13 +53,44 @@ button[type="submit"]:hover {
   background-color: #45a049;
 }
 
+button[type="upload-button"] {
+  background-color: lightblue;
+  color: white;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button[type="upload-button"]:hover {
+  background-color: rgb(42, 118, 143);
+}
+
+#output {
+  color: rgb(40, 1, 1);
+  text-align: center;
+  color: #000000;
+}
+
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  border: 1px solid gray;
+  margin-left: 15em;
+  margin-right: 15em;
+  margin-block-end: 10px;
+  padding: 10px;
+}
+
+
 table {
   border-collapse: collapse;
   margin-left: auto;
   margin-right: auto;
 
-}
-.spacing li {
-  padding-top: 10px; /* Increase as needed */
-  padding-bottom: 10px; /* Increase as needed */
 }
