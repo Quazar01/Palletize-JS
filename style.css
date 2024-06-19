@@ -98,6 +98,11 @@ li {
   background-color: #d4d4d4;
 }
 
+@media (max-width: 1375px) {
+  li {
+    margin: 0px 10em 10px 10em;
+  }
+}
 
 table {
   border-collapse: collapse;
