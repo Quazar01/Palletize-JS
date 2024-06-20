@@ -400,6 +400,7 @@ function fixaPlockListan() {
 
   displayResults(platser);
 
+
   async function crossSelectedPall(event) {
     try {
       const element = event.target;
@@ -566,7 +567,7 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
     output += `\n\n<p class='headText'> Enkel Pall: </p>\n`;
     // Sort the pallets by height in descending order.
     skvettPalls.sort((a, b) => b.getHeight() - a.getHeight());
-    
+
     output += "<ul>";
     for (const skvettPall of skvettPalls) {
       output += `<li class="line-through">${skvettPall.getProdId()}: ${skvettPall.getQuantity()} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${skvettPall.stackHeight})</li>\n`;
