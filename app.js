@@ -43,11 +43,12 @@ class Product {
 }
 
 class SkvettPall {
-  constructor(prodId, quantity, height, stackHeight) {
+  constructor(prodId, quantity, height, stackHeight, box) {
     this.prodId = prodId;
     this.quantity = quantity;
     this.height = height;
     this.stackHeight = stackHeight;
+    this.box = box;
   }
 
   getProdId() {
@@ -60,6 +61,9 @@ class SkvettPall {
 
   getHeight() {
     return this.height;
+  }
+  getBox() {
+    return this.box;
   }
 }
 
@@ -412,10 +416,11 @@ function fixaPlockListan() {
   console.log("SRS Pall: ", skvettPalls.length + antalFullPall); // +1 for the mix pallet.
 
 
-  const platser = calculatePlatser(skvettPalls, fullPalls, mixProducts);
-  console.log("Platser: ", platser);
+  // const platser = calculatePlatser(skvettPalls, fullPalls, mixProducts);
+  const platserStackHeight = platserUsingStackHeight(skvettPalls, fullPalls);
+  console.log("Platser using stack height: ", platserStackHeight);
 
-  displayResults(platser);
+  displayResults(platserStackHeight);
 
 
   async function crossSelectedPall(event) {
@@ -461,7 +466,8 @@ function handleSkvettOrMixPall(order, product, stackHeight) {
 
   } else {
     const skvettHeight = (product.getBox().height * stackHeight) + SRSPallet.height;
-    skvettPalls.push(new SkvettPall(order.getProdId(), order.quantity, skvettHeight, stackHeight));
+    const box = product.getBox();
+    skvettPalls.push(new SkvettPall(order.getProdId(), order.quantity, skvettHeight, stackHeight, box));
   }
 }
 
@@ -579,6 +585,45 @@ function calculatePlatser(skvettPalls, fullPalls, mixProducts) {
   // totalHeight += MixPallHeight;
   // Calculate the number of platser.
   platser = totalHeight / EnPlats;
+  return platser;
+}
+// Calculate platser using stack height.
+function platserUsingStackHeight(skvettPalls, fullPalls) {
+  let platser = 0;
+  let totalStackHeight = 0;
+  let SRSCount = 0;
+  // Each two full palls are 1 platser.
+  for (const fullPall of fullPalls) {
+    platser += fullPall.quantity / 2;
+  }
+
+  for (const skvettPall of skvettPalls) {
+    const box = skvettPall.getBox();
+    if (box == red) {
+      totalStackHeight += skvettPall.stackHeight;
+      console.log("red stack height: ", skvettPall.stackHeight)
+    }
+    else if (box == green) {
+      totalStackHeight += Math.ceil(skvettPall.stackHeight * (8 / 7));
+      console.log("green stack height: ", skvettPall.stackHeight * (8 / 7));
+    }
+    else if (box == black) {
+      totalStackHeight += Math.ceil(skvettPall.stackHeight * (8 / 6));
+      console.log("black stack height: ", skvettPall.stackHeight * (8 / 6));
+    }
+    else if (box == blue) {
+      totalStackHeight += Math.ceil(skvettPall.stackHeight * (8 / 11));
+      console.log("blue stack height: ", skvettPall.stackHeight * (8 / 11));
+    }
+    else if (box == renrum) {
+      totalStackHeight += skvettPall.stackHeight * (8 / 16);
+      console.log("renrum stack height: ", skvettPall.stackHeight * (8 / 16));
+    }
+    SRSCount ++;
+  }
+  totalStackHeight += SRSCount;
+  platser += totalStackHeight / 18;
+
   return platser;
 }
 
