@@ -1,6 +1,7 @@
 // Description: This file contains the main logic for the application. It processes the Excel file, extracts the data, and generates the output based on the requirements. The output is then displayed on the web page for the user to view.
 
-// todo: Consider combining the mix pallets with the skvett pallets to reduce the number of parcels further. This would require additional logic, where the number of boxes in the mix pall is considered red boxes count plus (if it's green then its 2 red boxes, if it's black then it's 8/6 red box, and if it's blue then it's 1/2 red box). Calculate the height accordingly, then the mix pallets are combined with the skvett pallets in the Best Fit Descending (BFD) approach to get the least possible number of parcels to be shipped.
+// todo: Consider combining the mix pallets with the skvett pallets to reduce the number of parcels further. This would require additional logic, where the number of boxes in the mix pall is considered red boxes count plus (if it's green then its 2 red boxes, if it's black then it's 8/6 red box, and if it's blue then it's 1/2 red box). Calculate the height accordingly, then the mix pallets are combined with the other skvett pallets in the best fit descending approach.
+// DONE
 
 class EmptyPallet {
   constructor(length, width, height) {
@@ -595,9 +596,11 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
   if (!document.getElementById('comboRadio').checked) {
     output += `<br><br>Antal Platser: <i>${platser.toFixed(2)}</i><br><br>\n\n`;
     output += `Antal Kolli: <i>${totalFullPalls + skvettPalls.length + 1}</i><br><br>\n\n`;
+    output += (`SRS Pall: <i>${skvettPalls.length + totalFullPalls}`)
   }
   else {
     output += `<br><br>Antal Kolli: <i>${totalFullPalls + comboPalls.length}</i><br><br>\n\n`;
+    output += (`SRS Pall: <i>${skvettPalls.length + totalFullPalls}`)
   }
 
   output += `<p class='headText'>Full Pall:</p>\n`;
