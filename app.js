@@ -603,7 +603,7 @@ function platserUsingStackHeight(skvettPalls, fullPalls) {
   for (const fullPall of fullPalls) {
     platser += fullPall.quantity / 2;
   }
-
+  // Calculate each skvett pall stack height in respect to the red box, and add it to the total stack height.
   for (const skvettPall of skvettPalls) {
     const box = skvettPall.getBox();
     if (box == red) {
