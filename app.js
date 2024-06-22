@@ -397,6 +397,7 @@ function fixaPlockListan() {
       } else {
         // If the remainder can be stacked, 
         // handle it using handleSkvettOrMixPall method.
+        fullPall.setNotFull(null);
         stackHeight = Math.ceil(order.quantity / product.getBox().boxesInRow);
         handleSkvettOrMixPall(order, product, stackHeight);
       }
