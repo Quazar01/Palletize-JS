@@ -1,7 +1,4 @@
-// Description: This file contains the main logic for the application. It processes the Excel file, extracts the data, and generates the output based on the requirements. The output is then displayed on the web page for the user to view.
-
-// todo: Consider combining the mix pallets with the skvett pallets to reduce the number of parcels further. This would require additional logic, where the number of boxes in the mix pall is considered red boxes count plus (if it's green then its 2 red boxes, if it's black then it's 8/6 red box, and if it's blue then it's 1/2 red box). Calculate the height accordingly, then the mix pallets are combined with the other skvett pallets in the best fit descending approach.
-// DONE
+// Description: This file contains the main logic for the application. It processes the Excel file, extracts the data, and generates the output based on the requirements. The output is then displayed on the web page for the user to view. 
 
 class EmptyPallet {
   constructor(length, width, height) {
@@ -390,21 +387,32 @@ function fixaPlockListan() {
 
       {
         const fullPall = getFullPall(order.getProdId(), fullPalls);
-        if (fullPall !== null) {
+        if (fullPall != null) {
           fullPall.setNotFull(order.quantity);
+          fullPall.quantity += 1;
           order.quantity = 0;
         }
+
       } else {
         // If the remainder can be stacked, 
         // handle it using handleSkvettOrMixPall method.
-        // fullPall.setNotFull(null);
         stackHeight = Math.ceil(order.quantity / product.getBox().boxesInRow);
         handleSkvettOrMixPall(order, product, stackHeight);
       }
-    } else {  // This is useless, but I'll keep it for now.
-      // If it can't form a full pallet, then check if it can be a mix product,
-      // or a skvett pallet.
-      handleSkvettOrMixPall(order, product, stackHeight);
+      
+    } else {  // If the order's quantity is less than a full pallet, but can't be stacked with another pallet.
+      if (product.getBox() === red && stackHeight > 6 || // for red.
+        product.getBox() === green && stackHeight > 5 ||     // for green.
+        product.getBox() === renrum && stackHeight > 12 || // for renrum.
+        product.getBox() === black && stackHeight > 4)     // for black.
+      {
+        const pallsHeight = Math.ceil(order.quantity / product.getBox().boxesInRow) * product.getBox().height + SRSPallet.height;
+
+        fullPalls.push(new FullPall(order.getProdId(), 1, order.quantity, pallsHeight));
+      } else {
+        // If the order's quantity is less than a full pallet, and can be stacked with another pallet.
+        handleSkvettOrMixPall(order, product, stackHeight);
+      }
     }
   });
   // Form a skvett pallet from the mix products.
@@ -557,9 +565,6 @@ function fullPallsQuantity(fullPalls) {
   let counter = 0;
   for (pall of fullPalls) {
     counter += pall.quantity;
-    if (pall.getNotFull != null) {
-      counter += 1;
-    }
   }
   return counter;
 }
@@ -608,23 +613,23 @@ function platserUsingStackHeight(skvettPalls, fullPalls) {
     const box = skvettPall.getBox();
     if (box == red) {
       totalStackHeight += skvettPall.stackHeight;
-      console.log("red stack height: ", skvettPall.stackHeight)
+      // console.log("red stack height: ", skvettPall.stackHeight);
     }
     else if (box == green) {
       totalStackHeight += Math.ceil(skvettPall.stackHeight * (8 / 7));
-      console.log("green stack height: ", skvettPall.stackHeight * (8 / 7));
+      // console.log("green stack height: ", skvettPall.stackHeight * (8 / 7));
     }
     else if (box == black) {
       totalStackHeight += Math.ceil(skvettPall.stackHeight * (8 / 6));
-      console.log("black stack height: ", skvettPall.stackHeight * (8 / 6));
+      // console.log("black stack height: ", skvettPall.stackHeight * (8 / 6));
     }
     else if (box == blue) {
       totalStackHeight += Math.ceil(skvettPall.stackHeight * (8 / 11));
-      console.log("blue stack height: ", skvettPall.stackHeight * (8 / 11));
+      // console.log("blue stack height: ", skvettPall.stackHeight * (8 / 11));
     }
     else if (box == renrum) {
       totalStackHeight += skvettPall.stackHeight * (8 / 16);
-      console.log("renrum stack height: ", skvettPall.stackHeight * (8 / 16));
+      // console.log("renrum stack height: ", skvettPall.stackHeight * (8 / 16));
     }
     SRSCount ++;
   }
@@ -646,17 +651,14 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
   // const totalFullPalls = fullPalls.reduce((sum, pall) => sum + pall.getQuantity(), 0);
   const totalFullPalls = fullPallsQuantity(fullPalls);
   console.log("Total full palls: ", totalFullPalls);
-  if (mixProducts.length == 0){
-
-  }
 
   if (!document.getElementById('comboRadio').checked) {
     output += `<br><br>Antal Platser: <i>${platser.toFixed(2)}</i><br><br>\n\n`;
     output += `Antal Kolli: <i>${totalFullPalls + comboPalls.length}</i><br><br>\n\n`;
     const SRS = skvettPalls.length + totalFullPalls;
-    if (mixProducts.length == 0) {
-      SRS -= 1;
-    }
+    // if (mixProducts.length == 0) {
+    //   SRS -= 1;
+    // }
     output += (`SRS Pall: <i>${skvettPalls.length + totalFullPalls}`)
   }
   else {
@@ -666,16 +668,17 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
 
   output += `<p class='headText'>Full Pall:</p>\n`;
   output += "<ul>"
-  for (const fullPall of fullPalls) {
-    output += `<li class="line-through">${fullPall.getProdId()}: ${Array(fullPall.getQuantity()).fill(fullPall.boxesInFullPall).join(' ')}`;
 
-    if (fullPall.notFull != null) {
-      output += ` ${fullPall.getNotFull()}`;
-      output += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(" + `${fullPall.quantity + 1}` + ").</li>\n";
+  fullPalls.sort((a, b) => b.getQuantity() - a.getQuantity());
+  for (const fullPall of fullPalls) {
+    if (fullPall.notFull == null) {
+      output += `<li class="line-through">${fullPall.getProdId()}: ${Array(fullPall.getQuantity()).fill(fullPall.boxesInFullPall).join(' ')}`;
     }
     else {
-      output += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(" + `${fullPall.quantity}` + ").</li>\n";
+      output += `<li class="line-through">${fullPall.getProdId()}: ${Array(fullPall.getQuantity() - 1).fill(fullPall.boxesInFullPall).join(' ')} ${fullPall.getNotFull()}`;
     }
+    output += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(" + `${fullPall.quantity}` + ").</li>\n";
+    
   }
   output += "</ul>"
 
@@ -712,57 +715,3 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
   output += "</ul>";
   return output;
 }
-
-// Display as a table
-
-
-// function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
-//   let output = ``;
-//   const totalFullPalls = fullPalls.reduce((sum, pall) => sum + pall.getQuantity(), 0);
-
-//   output += `<div class="output-section">`;
-//   if (!document.getElementById('comboRadio').checked) {
-//     output += `<p>Antal Platser: ${platser.toFixed(2)}</p>`;
-//     output += `<p>Antal Kolli: ${totalFullPalls + skvettPalls.length + 1}</p>`;
-//   } else {
-//     output += `<p>Antal Kolli: ${totalFullPalls + comboPalls.length + 1}</p>`;
-//   }
-
-//   output += `<h3>Full Palls:</h3>`;
-//   output += `<table class="table-full-palls"><tr><th>ProdID</th><th>Quantity</th></tr>`;
-//   for (const fullPall of fullPalls) {
-//     let details = fullPall.notFull != null ? `${fullPall.getNotFull()} (${fullPall.quantity + 1})` : `(${fullPall.quantity})`;
-//     output += `<tr><td>${fullPall.getProdId()}</td><td>${fullPall.getQuantity()}</td></tr>`;
-//   }
-//   output += `</table>`;
-
-//   if (document.getElementById('comboRadio').checked) {
-//     output += `<h3>Combo Palls:</h3><table class="table-combo-palls"><tr><th>Combo Details</th></tr>`;
-//     for (const combo of comboPalls) {
-//       output += `<tr><td>`;
-//       for (const skvettPall of combo) {
-//         output += `${skvettPall.getProdId()}: ${skvettPall.getQuantity()}<br>`;
-//       }
-//       output += `</td></tr>`;
-//       output += `<tr><td colspan="3"><hr></td></tr>`; // Inserted line
-
-//     }
-//     output += `</table>`;
-//   } else {
-//     output += `<h3>Enkel Palls:</h3><table class="table-enkel-palls"><tr><th>Product ID</th><th>Quantity</th><th>Stack Height</th></tr>`;
-//     skvettPalls.sort((a, b) => b.getHeight() - a.getHeight());
-//     for (const skvettPall of skvettPalls) {
-//       output += `<tr class="table-row-spacing"><td>${skvettPall.getProdId()}</td><td>${skvettPall.getQuantity()}</td><td>${skvettPall.stackHeight}</td></tr>`;
-//     }
-//     output += `</table>`;
-//   }
-
-//   output += `<h3>Mix Pall:</h3><table class="table-mix-pall"><tr><th>Product ID</th><th>Quantity</th></tr>`;
-//   for (const mixProduct of mixProducts) {
-//     output += `<tr><td>${mixProduct.getProdId()}</td><td>${mixProduct.getQuantity()}</td></tr>`;
-//   }
-//   output += `</table>`;
-//   output += `</div>`;
-
-//   return output;
-// }
