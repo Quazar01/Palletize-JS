@@ -520,6 +520,9 @@ function formSkvettPall(mixProducts) {
 // Combining the skvett pallets in the Best Fit Descending (BFD) approach,
 // to get the least possible number of parcels to be shipped.
 function combinePallets(pallets, maxSum) {
+  // Modify the function so it combines pallets according to
+  // their stack height instead of height in cm. 
+  // Max height is the red max tack-height. 
   // Sort the pallets array in descending order by height
   pallets.sort((a, b) => b.getHeight() - a.getHeight());
 
