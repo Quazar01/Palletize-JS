@@ -557,6 +557,9 @@ function fullPallsQuantity(fullPalls) {
   let counter = 0;
   for (pall of fullPalls) {
     counter += pall.quantity;
+    if (pall.getNotFull != null) {
+      counter += 1;
+    } 
   }
   return counter;
 }
