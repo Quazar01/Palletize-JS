@@ -1,5 +1,7 @@
 // Description: This file contains the main logic for the application. It processes the Excel file, extracts the data, and generates the output based on the requirements. The output is then displayed on the web page for the user to view. 
 
+
+// TODO: Refactor the code to make it more readable and maintainable.
 class EmptyPallet {
   constructor(length, width, height) {
     this.length = length;
@@ -132,7 +134,7 @@ const SRSPallet = new EmptyPallet(1200, 800, 150);
 const MAX_HEIGHT = 1350;
 const EnPlats = MAX_HEIGHT * 2;
 
-const red = new Box(400, 300, 150, 8, 64, 8);
+const red = new Box(400, 300, 148, 8, 64, 8);
 const green = new Box(600, 400, 170, 7, 28, 4);
 const blue = new Box(400, 300, 110, 11, 88, 8);
 const renrum = new Box(400, 300, 75, 16, 128, 8);
@@ -321,6 +323,7 @@ function extractArtikelAndDFP(data) {
   const result = [];
 
 // Check for headers in the first 10 rows.
+// TODO: Modify this to fit the list from DAGAB as well.
   let artikelIndex = -1;
   let dfpIndex = -1;
   for (let i = 0; i <= 10; i++) {
@@ -328,6 +331,14 @@ function extractArtikelAndDFP(data) {
     if (headers.includes("Artikelnummer")) {
       artikelIndex = headers.indexOf("Artikelnummer");
     }
+
+    // if (headers.includes("levArtikel")) {
+    //   artikelIndex = headers.indexOf("levArtikel");
+    // }
+    // if (headers.includes("Whatever")) {
+    //   dfpIndex = headers.indexOf("Whatever");
+    // }
+
     if (headers.includes("Beställda DFP")) {
       dfpIndex = headers.indexOf("Beställda DFP");
     }
@@ -369,8 +380,11 @@ function fixaPlockListan() {
     // If the quantity can be one or more full pallets.
     if (parseInt((order.quantity / product.getBox().fullPall)) != 0) {
       // Put them in the fullPalls list.
-      const fullPallHeight = (product.getBox().height * product.getBox().fullPall) + SRSPallet.height;
-      fullPalls.push(new FullPall(order.getProdId(), Math.floor(order.quantity / product.getBox().fullPall), product.getBox().fullPall, fullPallHeight));
+      const fullPallHeight = (product.getBox().height * product.getBox().maxStackHeight) + SRSPallet.height;
+      
+      const fullPallsQuantity = Math.floor(order.quantity / product.getBox().fullPall);
+
+      fullPalls.push(new FullPall(order.getProdId(), fullPallsQuantity, product.getBox().fullPall, fullPallHeight));
 
       // Update the quantity after subtracting the full pallets.
       // e.g ordered 1168 : 93, then full palls is 1, new quantity is (93 - 64 = 29)
@@ -422,7 +436,13 @@ function fixaPlockListan() {
   }
 
   // combinePallets stack the skvett pallets over each other as long as they don't exceed height of 1400 mm in the most efficient way so the result is as least parcels (kolli) as possible.
+  let skvettMixPall = formSkvettPall(mixProducts);
+
+  // Combine the skvett pallets in the Best Fit Descending (BFD) approach, and put them in the comboPalls list.
+  // Leave the mix pallet out of the calculation.
+  // Then combine the mix pallet with the combo pallets, if possible.
   comboPalls = combinePallets(skvettPalls, MAX_HEIGHT);
+  combineMixPallWithComboPall(skvettMixPall, comboPalls);
 
   const antalFullPall = fullPallsQuantity(fullPalls);
   console.log("SRS Pall: ", skvettPalls.length + antalFullPall); // +1 for the mix pallet.
@@ -523,7 +543,8 @@ function formSkvettPall(mixProducts) {
   totalQuantity = Math.ceil(totalQuantity);
   stackHeight = Math.ceil(totalQuantity / red.boxesInRow);
   totalHeight = (red.height * stackHeight) + SRSPallet.height;
-  skvettPalls.push(new SkvettPall(prodId, boxesInMixPall, totalHeight, stackHeight));
+  // skvettPalls.push(new SkvettPall(prodId, boxesInMixPall, totalHeight, stackHeight));
+  return new SkvettPall(prodId, boxesInMixPall, totalHeight, stackHeight, red);
 }
 
 // Combining the skvett pallets in the Best Fit Descending (BFD) approach,
@@ -539,6 +560,7 @@ function combinePallets(pallets, maxSum) {
 
   // For each pallet, find the best fit bin (pallet stack)
   for (let pallet of pallets) {
+
     let bestFitIndex = -1;
     let minRemainingHeight = maxSum;
 
@@ -559,9 +581,39 @@ function combinePallets(pallets, maxSum) {
       parcelPallets.push([pallet]);
     }
   }
-
+  
   return parcelPallets;
 }
+
+// Combine Mix Pall with the lowest combo pall if possible.
+function combineMixPallWithComboPall(mixPall, comboPalls) {
+  let bestFitIndex = -1;
+  let minRemainingHeight = MAX_HEIGHT;
+  // sortComboPalls(comboPalls);
+
+  for (let i = 0; i < comboPalls.length; i++) {
+    const currentHeight = comboPalls[i].reduce((sum, p) => sum + p.getHeight(), 0);
+    const remainingHeight = MAX_HEIGHT - (currentHeight + mixPall.getHeight());
+
+    if (remainingHeight >= 0 && remainingHeight < minRemainingHeight) {
+      bestFitIndex = i;
+      minRemainingHeight = remainingHeight;
+    }
+  }
+
+  if (bestFitIndex !== -1) {
+    comboPalls[bestFitIndex].push(mixPall);
+  } else {
+    comboPalls.push([mixPall]);
+    skvettPalls.push(mixPall);
+  }
+}
+
+// Sort the comboPalls in descending order by height.
+function sortComboPalls(comboPalls) {
+  comboPalls.sort((a, b) => b.reduce((sum, p) => sum + p.getHeight(), 0) - a.reduce((sum, p) => sum + p.getHeight(), 0));
+}
+
 function fullPallsQuantity(fullPalls) {
   let counter = 0;
   for (pall of fullPalls) {
@@ -603,7 +655,7 @@ function calculatePlatser(skvettPalls, fullPalls, mixProducts) {
 function platserUsingStackHeight(skvettPalls, fullPalls) {
   let platser = 0;
   let totalStackHeight = 0;
-  let SRSCount = 0;
+  let SRSCount = skvettPalls.length;
   // Each two full palls are 1 platser.
   for (const fullPall of fullPalls) {
     platser += fullPall.quantity / 2;
@@ -632,7 +684,6 @@ function platserUsingStackHeight(skvettPalls, fullPalls) {
       totalStackHeight += skvettPall.stackHeight * (8 / 16);
       // console.log("renrum stack height: ", skvettPall.stackHeight * (8 / 16));
     }
-    SRSCount ++;
   }
   totalStackHeight += SRSCount;
   platser += totalStackHeight / 18;
@@ -652,19 +703,19 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
   // const totalFullPalls = fullPalls.reduce((sum, pall) => sum + pall.getQuantity(), 0);
   const totalFullPalls = fullPallsQuantity(fullPalls);
   console.log("Total full palls: ", totalFullPalls);
+  const SRS = skvettPalls.length + totalFullPalls;
 
   if (!document.getElementById('comboRadio').checked) {
     output += `<br><br>Antal Platser: <i>${platser.toFixed(2)}</i><br><br>\n\n`;
-    output += `Antal Kolli: <i>${totalFullPalls + comboPalls.length}</i><br><br>\n\n`;
-    const SRS = skvettPalls.length + totalFullPalls;
+    output += `Antal Kolli: <i>${SRS}</i><br><br>\n\n`;
     // if (mixProducts.length == 0) {
     //   SRS -= 1;
     // }
-    output += (`SRS Pall: <i>${skvettPalls.length + totalFullPalls}`)
+    output += (`SRS Pall: <i>${SRS}`)
   }
   else {
     output += `<br><br>Antal Kolli: <i>${totalFullPalls + comboPalls.length}</i><br><br>\n\n`;
-    output += (`SRS Pall: <i>${skvettPalls.length + totalFullPalls}`)
+    output += (`SRS Pall: <i>${SRS}</i><br><br>\n\n`);
   }
 
   output += `<p class='headText'>Full Pall:</p>\n`;
