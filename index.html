@@ -15,6 +15,9 @@
 <body>
 
     <h1 style="text-align: center; margin: 2em; font-size: 1.5em;">Plocklista Generator</h1>
+    <div id="errorField">
+
+    </div>
     <div style="text-align: center;">
         <label for="comboRadio" class="radio">
             <input id="comboRadio" type="radio" name="palletType" value="combo" checked> Combo Pallets
@@ -33,6 +36,7 @@
 
         <button type="submit" onclick="document.getElementById('excelForm').style.display = 'none';">Ladda Upp</button>
     </form>
+
 
     <section id="output" rows="20" cols="50">
 

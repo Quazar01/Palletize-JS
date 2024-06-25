@@ -559,6 +559,11 @@ function handleSkvettOrMixPall(product, quantity) {
 
 }
 
+// Fetch the wanted product by its id.
+function getProduct(productId, products) {
+  return products.find(product => product.getId() === productId) || null;
+}
+
 // Form a skvett pallet from the mix products.
 function formSkvettPall(mixProducts) {
   if (mixProducts.length == 0) {
@@ -759,10 +764,11 @@ function displayResults() {
   let outputArea = document.getElementById("output");
   outputArea.innerHTML = formatOutput();
 
-  // console.log("Full Palls: ", fullPalls);
-  // console.log("Skvett Palls: ", skvettPalls);
-  // console.log("Mix Products: ", mixProducts);
-  // console.log("Combo Palls: ", comboPalls);
+  console.log("Full Palls: ", fullPalls);
+  console.log("Skvett Palls: ", skvettPalls);
+  console.log("Mix Products: ", mixProducts);
+  console.log("Combo Palls: ", comboPalls);
+  
 }
 
 function formatOutput() {

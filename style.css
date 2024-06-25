@@ -3,6 +3,7 @@
   font-family: 'Arial', sans-serif;
   color: #0c0303;
   background-color: rgb(90, 165, 165);
+  text-align: center;
 }
 
 .radio{
@@ -75,6 +76,14 @@ button[type="upload-button"] {
 
 button[type="upload-button"]:hover {
   background-color: rgb(42, 118, 143);
+}
+
+#errorField  {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin-left: 1em;
+  color: red;
+
 }
 
 #output {
