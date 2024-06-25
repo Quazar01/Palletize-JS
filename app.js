@@ -11,10 +11,11 @@ class EmptyPallet {
 }
 
 class Box {
-  constructor(length, width, height, maxStackHeight, fullPall, boxesInRow) {
+  constructor(length, width, fullHeight, stackedUponHeight, maxStackHeight, fullPall, boxesInRow) {
     this.length = length;
     this.width = width;
-    this.height = height;
+    this.fullHeight = fullHeight;
+    this.stackedUponHeight = stackedUponHeight;
     this.maxStackHeight = maxStackHeight;
     this.fullPall = fullPall;
     this.boxesInRow = boxesInRow;
@@ -131,14 +132,14 @@ class Order {
 }
 
 const SRSPallet = new EmptyPallet(1200, 800, 150);
-const MAX_HEIGHT = 1350;
+const MAX_HEIGHT = 1305;
 const EnPlats = MAX_HEIGHT * 2;
 
-const red = new Box(400, 300, 148, 8, 64, 8);
-const green = new Box(600, 400, 170, 7, 28, 4);
-const blue = new Box(400, 300, 110, 11, 88, 8);
-const renrum = new Box(400, 300, 75, 16, 128, 8);
-const black = new Box(400, 300, 200, 6, 48, 8);
+const red = new Box(400, 300, 148, 136, 8, 64, 8);
+const green = new Box(600, 400, 167, 154, 7, 28, 4);
+const blue = new Box(400, 300, 108, 96, 11, 88, 8);
+const renrum = new Box(400, 300, 108, 66, 16, 128, 8);
+const black = new Box(400, 300, 193, 181, 6, 48, 8);
 
 const orders = [];
 
@@ -184,6 +185,7 @@ let products = [
   new Product("thai", 10622, green),
   new Product("brostfile", 10722, green),
   new Product("elva76", 1176, black),
+  new Product("1222", 1222, black),
   new Product("brostfile", 3362, green),
   new Product("brostfile", 3467, green),
   new Product("brostfile", 3562, green),
@@ -380,8 +382,7 @@ function fixaPlockListan() {
     // If the quantity can be one or more full pallets.
     if (parseInt((order.quantity / product.getBox().fullPall)) != 0) {
       // Put them in the fullPalls list.
-      const fullPallHeight = (product.getBox().height * product.getBox().maxStackHeight) + SRSPallet.height;
-      
+      const fullPallHeight = (product.getBox().fullHeight + (product.getBox().stackedUponHeight * (product.getBox().maxStackHeight - 1))) + SRSPallet.height;
       const fullPallsQuantity = Math.floor(order.quantity / product.getBox().fullPall);
 
       fullPalls.push(new FullPall(order.getProdId(), fullPallsQuantity, product.getBox().fullPall, fullPallHeight));
@@ -421,7 +422,7 @@ function fixaPlockListan() {
         product.getBox() === renrum && stackHeight > 12 || // for renrum.
         product.getBox() === black && stackHeight > 4)     // for black.
       {
-        const pallsHeight = Math.ceil(order.quantity / product.getBox().boxesInRow) * product.getBox().height + SRSPallet.height;
+        const pallsHeight = ((Math.ceil(order.quantity / product.getBox().boxesInRow) - 1) * product.getBox().stackedUponHeight) + product.getBox().fullHeight + SRSPallet.height;
 
         fullPalls.push(new FullPall(order.getProdId(), 1, order.quantity, pallsHeight));
       } else {
@@ -438,17 +439,31 @@ function fixaPlockListan() {
   // combinePallets stack the skvett pallets over each other as long as they don't exceed height of 1400 mm in the most efficient way so the result is as least parcels (kolli) as possible.
   let skvettMixPall = formSkvettPall(mixProducts);
 
-  // Combine the skvett pallets in the Best Fit Descending (BFD) approach, and put them in the comboPalls list.
-  // Leave the mix pallet out of the calculation.
-  // Then combine the mix pallet with the combo pallets, if possible.
-  comboPalls = combinePallets(skvettPalls, MAX_HEIGHT);
-  combineMixPallWithComboPall(skvettMixPall, comboPalls);
+  // If Mix Pall's stack height is less than 3 boxes hight, then it's better to combine it with the skvett pallets. otherwise, leave it out of the calculation, and combine it with the combo pallets.
+  if (skvettMixPall.stackHeight < 3) {
+    if (skvettMixPall.getQuantity() != 0) {
+      skvettPalls.push(skvettMixPall);
+    }
+    // Combine the skvett pallets in the Best Fit Descending (BFD) approach, and put them in the comboPalls list.
+    comboPalls = combinePallets(skvettPalls, MAX_HEIGHT);
+  }
+  else {
+     // Combine the skvett pallets in the Best Fit Descending (BFD) approach, and put them in the comboPalls list.
+    // Leave the mix pallet out of the calculation.
+    // Then combine the mix pallet with the combo pallets, if possible.
+    if (skvettMixPall.getQuantity() != 0) {
+      comboPalls = combinePallets(skvettPalls, MAX_HEIGHT);
+      combineMixPallWithComboPall(skvettMixPall, comboPalls);
+    }
+  }
+
 
   const antalFullPall = fullPallsQuantity(fullPalls);
   console.log("SRS Pall: ", skvettPalls.length + antalFullPall); // +1 for the mix pallet.
 
 
-  // const platser = calculatePlatser(skvettPalls, fullPalls, mixProducts);
+  const platser = calculatePlatser(skvettPalls, fullPalls, skvettMixPall);
+  console.log("Platser: ", platser);
   const platserStackHeight = platserUsingStackHeight(skvettPalls, fullPalls);
   console.log("Platser using stack height: ", platserStackHeight);
 
@@ -497,7 +512,7 @@ function handleSkvettOrMixPall(order, product, stackHeight) {
     order.quantity = 0;
 
   } else {
-    const skvettHeight = (product.getBox().height * stackHeight) + SRSPallet.height;
+    const skvettHeight = (product.getBox().fullHeight + (product.getBox().stackedUponHeight * (stackHeight - 1))) + SRSPallet.height;
     const box = product.getBox();
     skvettPalls.push(new SkvettPall(order.getProdId(), order.quantity, skvettHeight, stackHeight, box));
   }
@@ -542,7 +557,7 @@ function formSkvettPall(mixProducts) {
   }
   totalQuantity = Math.ceil(totalQuantity);
   stackHeight = Math.ceil(totalQuantity / red.boxesInRow);
-  totalHeight = (red.height * stackHeight) + SRSPallet.height;
+  totalHeight = (red.fullHeight * stackHeight) + SRSPallet.height;
   // skvettPalls.push(new SkvettPall(prodId, boxesInMixPall, totalHeight, stackHeight));
   return new SkvettPall(prodId, boxesInMixPall, totalHeight, stackHeight, red);
 }
@@ -605,8 +620,8 @@ function combineMixPallWithComboPall(mixPall, comboPalls) {
     comboPalls[bestFitIndex].push(mixPall);
   } else {
     comboPalls.push([mixPall]);
-    skvettPalls.push(mixPall);
   }
+  skvettPalls.push(mixPall);
 }
 
 // Sort the comboPalls in descending order by height.
@@ -622,32 +637,24 @@ function fullPallsQuantity(fullPalls) {
   return counter;
 }
 
-function calculatePlatser(skvettPalls, fullPalls, mixProducts) {
+function calculatePlatser(skvettPalls, fullPalls, skvettMixPall) {
   let totalHeight = 0;
   let platser = 0;
-  let boxesInMixPall = 0;
 
   // Calculate the total height of the skvett pallets.
   for (const skvettPall of skvettPalls) {
+    if (skvettPall.getProdId() === "Mix Pall") {
+      continue;
+    }
     totalHeight += skvettPall.getHeight();
   }
   // Calculate the total height of the full pallets.
-  for (const fullPall of fullPalls) {
-
+  for (const fullPall of fullPalls) {    
     totalHeight += fullPall.height * fullPall.getQuantity();
   }
-
-  // As we added the mix pallet to the skvett pallets, we dont need to add it again.
-
-  // for (const mixProduct of mixProducts) {
-  //   boxesInMixPall += mixProduct.getQuantity();
-  // }
-  // // Calculate the height of the mix pallet.
-  // MixPallHeight = (((boxesInMixPall / 8) + 1) * red.height) + SRSPallet.height;
-
-  // // Add the height of the mix pallet to the total height.
-  // totalHeight += MixPallHeight;
-  // Calculate the number of platser.
+  // Calculate the height of the mix pallet.
+  // totalHeight += skvettMixPall.getHeight();
+  console.log("Mix Pall height: ", skvettMixPall.getHeight());
   platser = totalHeight / EnPlats;
   return platser;
 }
@@ -754,13 +761,24 @@ function formatOutput(fullPalls, comboPalls, mixProducts, platser) {
 
     output += "<ul>";
     for (const skvettPall of skvettPalls) {
+      if (skvettPall.getProdId() === "Mix Pall") {
+        continue;
+      }
       output += `<li class="line-through">${skvettPall.getProdId()}: ${skvettPall.getQuantity()} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${skvettPall.stackHeight})</li>\n`;
     }
+    // Find the mix pallet in the skvett pallets list.
+    const mixPall = skvettPalls.find(pall => pall.getProdId() === "Mix Pall");
+    if (mixPall != null) {
+      output += `<li class="line-through">${mixPall.getProdId()}: ${mixPall.getQuantity()} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${mixPall.stackHeight})</li>\n`;
+    }
+    
     output += "</ul>";
   }
 
   output += "\n\n Mix Pall: \n\n";
   output += "<ul>";
+  // Sort the mix products by Id in ascending order.
+  mixProducts.sort((a, b) => a.getProdId() - b.getProdId());
   for (const mixProduct of mixProducts) {
     output += `<li class='line-through'>${mixProduct.getProdId()}: ${mixProduct.getQuantity()}</li>\n`;
   }
