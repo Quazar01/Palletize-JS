@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel File Upload</title>
+    <link rel="stylesheet" href="style.css">
+    </link>
+</head>
+
+<body>
+
+    <!-- <h1 style="text-align: center; margin: 2em; font-size: 1.5em;" id="header">Plocklista Generator</h1> -->
+
+    <div class="container">
+        <div class="radioContainer">
+            <label for="comboRadio" class="radio">
+                <input id="comboRadio" type="radio" name="palletType" value="combo" checked> Combo Pallets
+            </label>
+            <label for="individualRadio" class="radio">
+                <input id="individualRadio" type="radio" name="palletType" value="individual"> Enkel Pall
+            </label>    
+        </div>
+        <form id="excelForm"
+            ondrop="event.preventDefault(); document.getElementById('excelForm').style.display = 'none';">
+
+            <div id="dropZone" onclick="document.getElementById('excelFile').click()">Klicka här eller dra en fil för
+                att ladda upp</div>
+
+            <input type="file" id="excelFile" accept=".xlsx, .xls" style="display: none;"
+                onchange="updateDropZoneWithFileName()">
+
+            <button type="submit" onclick="document.getElementById('excelForm').style.display = 'none';">Ladda
+                Upp</button>
+        </form>
+
+        <div class="tables-container" id="output"> </div>
+    </div>
+    <!-- <section id="output" rows="20" cols="50"> -->
+
+    </section>
+    <div id="errorField"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script type="module" defer src="app.js"></script>
+</body>
+
+</html>
