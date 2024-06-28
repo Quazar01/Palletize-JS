@@ -1,3 +1,112 @@
+/* Style the page so it fits printing on a single A4 page */
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+  }
+
+  .container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .header {
+    display: none;
+  }
+
+  .footer {
+    display: none;
+  }
+
+  .content {
+    margin: 0;
+    padding: 0;
+  }
+
+  .content h1 {
+    font-size: 1.5em;
+  }
+
+  .content p {
+    font-size: 1em;
+  }
+
+  .content ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .content ul li {
+    border: 1px solid #000;
+    margin: 0 0 1em 0;
+    padding: 10px;
+  }
+
+  .content ul li h2 {
+    font-size: 1.2em;
+  }
+
+  .content ul li p {
+    font-size: 1em;
+  }
+
+  .content ul li ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .content ul li ul li {
+    border: 1px solid #000;
+    margin: 0 0 1em 0;
+    padding: 10px;
+  }
+
+  .content ul li ul li h3 {
+    font-size: 1em;
+  }
+
+  .content ul li ul li p {
+    font-size: 0.8em;
+  }
+
+  .content ul li ul li ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .content ul li ul li ul li {
+    border: 1px solid #000;
+    margin: 0 0 1em 0;
+    padding: 10px;
+  }
+
+  .content ul li ul li ul li h4 {
+    font-size: 0.8em;
+  }
+
+  .content ul li ul li ul li p {
+    font-size: 0.6em;
+  }
+
+  .content ul li ul li ul li ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .content ul li ul li ul li ul li {
+    border: 1px solid #000;
+    margin: 0 0 1em 0;
+    padding: 10px
+  }
+
+  .hide-on-print {
+    display: none;
+  }
+
+}
+
 * {
   font-size: 1.1em;
   font-family: 'Arial', sans-serif;
@@ -162,10 +271,4 @@ li {
     width: 90%;
     margin: 0 0 1em 0;
   }
-}
-
-table {
-  border-collapse: collapse;
-  margin-left: auto;
-  margin-right: auto;
 }
