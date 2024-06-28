@@ -121,6 +121,12 @@ class FullPall {
     this.quantity = quantity;
   }
 
+  getStackHeight() {
+    let box = this.product.getBox();
+    let stackHeight = Math.ceil(this.quantity / box.getBoxesInRow());
+    return stackHeight;
+  }
+
   getHeight() {
     let box = this.product.getBox();
     let stackHeight = Math.ceil(this.quantity / box.getBoxesInRow());
@@ -198,7 +204,7 @@ class Order {
 
 const SRSPallet = new EmptyPallet(1200, 800, 150);
 const MAX_HEIGHT = 1305;
-const EnPlats = MAX_HEIGHT * 2;
+const EnPlats = 1250 * 2;
 
 const red = new Box(400, 300, 148, 136, 8, 64, 8);
 const green = new Box(600, 400, 167, 154, 7, 28, 4);
@@ -521,19 +527,18 @@ function handleSkvettOrMixPall(product, quantity) {
   let skvettMixPall = formSkvettPall(mixProducts);
   // Combine the skvett pallets in the Best Fit Descending (BFD) approach, and put them in the comboPalls list.
   comboPalls = combinePallets(skvettPalls, MAX_HEIGHT);
-  console.log("Combo Palls: ", comboPalls);
-  console.log("Skvett Mix Pall: ", skvettMixPall);
   // If there is a mix pallet, handle it.
   if (skvettMixPall != null) {
-    handleMixPall(skvettMixPall, comboPalls);
+    insertMixPall(skvettMixPall, comboPalls);
   }
 
-
+  // combineComboPalls();
   const platser = calculatePlatser(skvettPalls, fullPalls);
   console.log("Platser: ", platser);
 
+  const platserStackHeight = platserUsingStackHeight();
+  console.log("Platser using stack height: ", platserStackHeight);
   displayResults();
-
 
   async function crossSelectedPall(event) {
     try {
@@ -606,6 +611,7 @@ function formSkvettPall(mixProducts) {
   // Calculate the stack height of the mix pallet.
   quantityAsRedBoxes = Math.ceil(quantityAsRedBoxes);
   stackHeight = Math.ceil(quantityAsRedBoxes / red.boxesInRow);
+
   // Calculate the total height of the mix pallet.
   totalHeight = red.fullHeight + (red.stackedUponHeight * (stackHeight - 1)) + SRSPallet.height;
   // skvettPalls.push(new SkvettPall(prodId, boxesInMixPall, totalHeight, stackHeight));
@@ -646,12 +652,13 @@ function combinePallets(pallets, maxSum) {
       parcelPallets.push([pallet]);
     }
   }
-  
+
   return parcelPallets;
 }
 
 // Combine Mix Pall with the lowest combo pall if possible.
-function handleMixPall(mixPall, comboPalls) {
+function insertMixPall(mixPall, comboPalls) {
+
   let canCombine = false;
   let skvettPall = null;
   let comboPallToRemove = 0;
@@ -662,41 +669,71 @@ function handleMixPall(mixPall, comboPalls) {
     // If there is a combo pall that's low enough to add the mix pall to it, remove it from the comboPalls list and add the mix pall to it later.
     if (comboPalls[i].length < 2 && comboPalls[i][0].getStackHeight() < 4 && comboPalls[i][0].getHeight() + mixPall.getHeight() <= MAX_HEIGHT) {
       skvettPall = comboPalls[i];
+      // console.log("inside handleMixPall: ", skvettPall);
       comboPallToRemove = i;
       canCombine = true;
+      break;
     }
 
     // If there is a combo pall with more than 2 pallets, then remove a pallet from it and add the mix pallet to the removed pallet and put it in the comboPalls list.
-    else if (comboPalls[i].length > 2) {
+    else if (comboPalls[i].length > 2 && comboPalls[i][0].getStackHeight() < 4 && comboPalls[i][0].getHeight() + mixPall.getHeight() <= MAX_HEIGHT) {
       // Sort the combo pallets in descending order by height.
       comboPalls[i].sort((a, b) => b.getHeight() - a.getHeight());
+      // Remove the lowest pallet in the combo pall, and assign it to the local variable skvettPall.
       skvettPall = comboPalls[i].pop();
       canCombine = true;
-      continue;
+      break;
     }
   }
 
   if (skvettPall != null) {
     // Check if the skvetPall is an array or a single pallet.
     if (Array.isArray(skvettPall)) {
+      // If it's an array, get the first element.
       skvettPall = skvettPall[0];
     }
+
   }
+
   if (canCombine) {
     skvettPalls.push(mixPall);
     let comboPall = [mixPall, skvettPall];
-    // Remove the combo pall that was low enough to add the mix pall to it.
-    comboPalls.splice(comboPallToRemove, 1);
+
     // Add the new combo pall to the comboPalls list.
     comboPalls.push(comboPall);
   }
   else {
     skvettPalls.push(mixPall);
     comboPalls.push([mixPall]);
-
   }
+}
 
+function combineComboPalls() {
+    // Get the comboPall that contains the mix pall.
+    const mixCombo = comboPalls.find(combo => combo.some(pall => pall.getPallId() === "Mix Pall"));
+    // Get the hieght of the mixCombo.
+    const mixComboHeight = mixCombo.reduce((sum, pall) => sum + pall.getHeight(), 0);
 
+    for (let combo of comboPalls) {
+      // If combo contains the mix pall then skip it.
+      if (combo.some(pall => pall.getPallId() === "Mix Pall")) {
+        continue;
+      }
+      // If the combo contains more than one pallet then skip it.
+      if (combo.length > 1) {
+        continue;
+      }
+      // If the combo contains only one pallet, then try to combine it with the mixCombo.
+      if (mixCombo != null) {
+        // If the height of the combo pall is less than the max height, then combine it with the mixCombo.
+        if (combo[0].getHeight() + mixComboHeight <= MAX_HEIGHT) {
+          mixCombo.push(combo[0]);
+          comboPalls.splice(comboPalls.indexOf(combo), 1);
+          comboPalls.splice(comboPalls.indexOf(mixCombo), 1);
+          comboPalls.push(mixCombo);
+        }
+      }
+    }
 }
 
 function calculatePlatser(skvettPalls, fullPalls) {
@@ -711,9 +748,7 @@ function calculatePlatser(skvettPalls, fullPalls) {
   // Calculate the total height of the full pallets.
   for (const fullPall of fullPalls) {    
     for (const pall of fullPall) {
-      const pallStackheight = pall.getQuantity() / pall.product.getBox().boxesInRow;
-      const pallHeight = pall.product.getBox().fullHeight + (pall.product.getBox().stackedUponHeight * (pallStackheight - 1)) + SRSPallet.height;
-      totalHeight += pallHeight;
+      totalHeight += pall.getHeight();
     }
   }
 
@@ -721,54 +756,35 @@ function calculatePlatser(skvettPalls, fullPalls) {
   return platser;
 }
 // Calculate platser using stack height.
-// function platserUsingStackHeight(skvettPalls, fullPalls) {
-//   let platser = 0;
-//   let totalStackHeight = 0;
-//   let SRSCount = skvettPalls.length;
-//   // Each two full palls are 1 platser.
-//   for (const fullPall of fullPalls) {
-//     platser += fullPall.quantity / 2;
-//   }
-//   // Calculate each skvett pall stack height in respect to the red box, and add it to the total stack height.
-//   // TODO: Consider the other boxes in the mix pallets. Fix a function to calculate the stack height of the mix pallets.
-//   for (const skvettPall of skvettPalls) {
-//     const box = skvettPall.getBox();
-//     if (box == red) {
-//       totalStackHeight += skvettPall.stackHeight;
-//       // console.log("red stack height: ", skvettPall.stackHeight);
-//     }
-//     else if (box == green) {
-//       totalStackHeight += Math.ceil(skvettPall.stackHeight * (8 / 7));
-//       // console.log("green stack height: ", skvettPall.stackHeight * (8 / 7));
-//     }
-//     else if (box == black) {
-//       totalStackHeight += Math.ceil(skvettPall.stackHeight * (8 / 6));
-//       // console.log("black stack height: ", skvettPall.stackHeight * (8 / 6));
-//     }
-//     else if (box == blue) {
-//       totalStackHeight += Math.ceil(skvettPall.stackHeight * (8 / 11));
-//       // console.log("blue stack height: ", skvettPall.stackHeight * (8 / 11));
-//     }
-//     else if (box == renrum) {
-//       totalStackHeight += skvettPall.stackHeight * (8 / 16);
-//       // console.log("renrum stack height: ", skvettPall.stackHeight * (8 / 16));
-//     }
-//   }
-//   totalStackHeight += SRSCount;
-//   platser += totalStackHeight / 18;
+function platserUsingStackHeight() {
+  let platser = 0;
+  let totalStackHeight = 0;
+  let SRSCount = skvettPalls.length;
+  // Each two full palls are 1 platser.
 
-//   return platser;
-// }
+  // for (const fullPall of fullPalls) {
+  //   platser += fullPall.length / 2;
+  // }
+  // Or Add each full pall's stack height to the total stack height,
+  // and divide it by 18 to get the number of platser, don't forget the srs count.
+  for (const fullPall of fullPalls) {
+    for (const pall of fullPall) {
+      totalStackHeight += pall.getStackHeight();
+      SRSCount += 1;
+    }
+  }
+  // Sum the stack height of the skvett palls.
+  for (const skvetPall of skvettPalls) {
+    totalStackHeight += skvetPall.getStackHeight();
+  }
+
+  platser = (totalStackHeight + SRSCount) / 18;
+  return platser;
+}
 
 function displayResults() {
   let outputArea = document.getElementById("output");
   outputArea.innerHTML = formatOutput();
-
-  console.log("Full Palls: ", fullPalls);
-  console.log("Skvett Palls: ", skvettPalls);
-  console.log("Mix Products: ", mixProducts);
-  console.log("Combo Palls: ", comboPalls);
-  
 }
 
 function formatOutput() {
@@ -781,9 +797,9 @@ function formatOutput() {
 
   if (!document.getElementById('comboRadio').checked) {
     output += `<br><br>Antal Platser: <i>${platser.toFixed(2)}</i><br><br>\n\n`;
-    output += `Antal Kolli: <i>${SRS}</i><br><br>\n\n`;
-    output += (`SRS-Pall: <i>${SRS}</i>\n\n`)
-    output += (`\n\nLådor: <i>${totalQuantityOfBoxes()}</i><br><br>\n\n`);
+    output += `Antal Kolli: <i>${SRS}</i><br><br>`;
+    output += (`SRS-Pall: <i>${SRS}</i><br><br>`)
+    output += (`Lådor: <i>${totalQuantityOfBoxes()}</i><br><br>\n\n`);
 
   }
   else {
