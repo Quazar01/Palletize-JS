@@ -405,12 +405,12 @@ function extractArtikelAndDFP(data) {
       artikelIndex = headers.indexOf("Artikelnummer");
     }
 
-    // if (headers.includes("levArtikel")) {
-    //   artikelIndex = headers.indexOf("levArtikel");
-    // }
-    // if (headers.includes("Whatever")) {
-    //   dfpIndex = headers.indexOf("Whatever");
-    // }
+    if (headers.includes("Lev artike")) {
+      artikelIndex = headers.indexOf("Lev artikel");
+    }
+    if (headers.includes("Kollin")) {
+      dfpIndex = headers.indexOf("Kollin");
+    }
 
     if (headers.includes("Beställda DFP")) {
       dfpIndex = headers.indexOf("Beställda DFP");
