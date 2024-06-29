@@ -828,7 +828,7 @@ function formatOutput() {
       output += `(${pall.getQuantity()})` + " ";
     }
 
-    output += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(" + `${fullPall.length}` + ").</li>\n";
+    output += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[" + `${fullPall.length}` + "].</li>\n";
     
   }
   output += "</ul>"
