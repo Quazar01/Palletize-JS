@@ -405,7 +405,7 @@ function extractArtikelAndDFP(data) {
       artikelIndex = headers.indexOf("Artikelnummer");
     }
 
-    if (headers.includes("Lev artike")) {
+    if (headers.includes("Lev artikel")) {
       artikelIndex = headers.indexOf("Lev artikel");
     }
     if (headers.includes("Kollin")) {
