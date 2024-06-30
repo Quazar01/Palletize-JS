@@ -445,7 +445,7 @@ function extractArtikelAndDFP(data) {
       dfpIndex = headers.indexOf("Kollin");
     }
     if (headers.includes("Prognos DFP")) {
-      dfpIndex = (headers.indexOf("Prognos DFP") + ((headers.indexOf("Prognos DFP") + 1)));
+      dfpIndex = (headers.indexOf("Prognos DFP") + 1) + headers.indexOf("Prognos DFP");
       console.log("defIndex: ", defIndex);
     }
     if (headers.includes("Beställda DFP")) {
