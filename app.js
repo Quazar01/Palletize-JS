@@ -203,7 +203,7 @@ class Order {
 }
 
 const SRSPallet = new EmptyPallet(1200, 800, 150);
-const MAX_HEIGHT = 1350;
+const MAX_HEIGHT = 1375;
 const EnPlats = 1250 * 2;
 
 const red = new Box(400, 300, 148, 136, 8, 64, 8);
