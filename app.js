@@ -659,9 +659,9 @@ function formSkvettPall(mixProducts) {
 function combinePallets(pallets, maxSum) {
   // Modify the function so it combines pallets according to
   // their stack height instead of height in cm. 
-  // Max height is the red max tack-height. 
+  // Max height is the red max stack-height. 
   // Sort the pallets array in descending order by height
-  // pallets.sort((a, b) => b.getHeight() - a.getHeight());
+  pallets.sort((a, b) => b.getHeight() - a.getHeight());
 
   const parcelPallets = [];
 
