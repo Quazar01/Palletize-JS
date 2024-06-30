@@ -661,7 +661,7 @@ function combinePallets(pallets, maxSum) {
   // their stack height instead of height in cm. 
   // Max height is the red max tack-height. 
   // Sort the pallets array in descending order by height
-  pallets.sort((a, b) => b.getHeight() - a.getHeight());
+  // pallets.sort((a, b) => b.getHeight() - a.getHeight());
 
   const parcelPallets = [];
 
