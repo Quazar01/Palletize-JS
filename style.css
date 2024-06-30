@@ -36,15 +36,37 @@
   .content ul {
     list-style: none;
     padding: 0;
+    margin: 0;
   }
 
   .content ul li {
     border: 1px solid #000;
-    margin: 0 0 1em 0;
+    margin: 10px;
     padding: 10px;
+    width: 15%;
   }
 
-  .content ul li h2 {
+  .full-pall li{
+    border: 1px solid #000;
+    margin: 10px;
+    padding: 10px;
+    width: 50%;
+  }
+
+  .combo-pall li{
+    border: 1px solid #000;
+    margin: 10px;
+    padding: 10px;
+    width: 25%;
+  }
+  .mix-pall li{
+    border: 1px solid #000;
+    margin: 10px;
+    padding: 10px;
+    width: 15%;
+  }
+
+  /* .content ul li h2 {
     font-size: 1.2em;
   }
 
@@ -99,7 +121,7 @@
     border: 1px solid #000;
     margin: 0 0 1em 0;
     padding: 10px
-  }
+  } */
 
   .hide-on-print {
     display: none;
@@ -114,6 +136,18 @@
   background-color: rgb(90, 165, 165);
   text-align: center;
 }
+
+body {
+  padding-top: 20px;
+}
+/* body {
+  display: flex;
+  justify-self: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+} */
 
 .radio{
   display: inline-block;
@@ -196,6 +230,16 @@ button[type="upload-button"]:hover {
   color: red;
 
 }
+.userInput {
+  border: none; border-bottom: 1px solid #100f0f; padding: 10px; font-size: 16px; outline: none; width: 200px; margin-bottom: 50px;
+}
+
+.kolli-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2em;
+}
 
 #output {
   color: rgb(40, 1, 1);
@@ -203,7 +247,6 @@ button[type="upload-button"]:hover {
   color: #000000;
 }
 .headText {
-
   font-size: 1.5em;
   font-weight: bold;
   text-align: center;
@@ -219,13 +262,15 @@ ul {
 }
 li {
   border: 1px solid rgb(150, 134, 134);
-  margin: 0px 30em 10px 30em;
+  margin: 5px;
   border-radius: 20px;
   padding: 10px;
   width: 30%;
   background-color: #fff9f9;
-  /* margin: 0 1em 1em 0; */
+  margin: 0 1em 1em 0;
+  align-items: center;
 }
+
 @media screen and (min-width: 1200px) {
   ul {
     display: flex;

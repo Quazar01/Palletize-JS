@@ -315,6 +315,10 @@ let products = [
   new Product("Not Set", 4792, red),
 
 ];
+
+let kund = "Ingen kund specificerad";
+let orderDate = getFormattedDate();
+
 // Drag and Drop Logic
 const dropZone = document.getElementById('dropZone');
 
@@ -340,13 +344,27 @@ function updateDropZoneWithFileName() {
     dropZone.innerHTML = fileName;
   }
 }
+// On drop.
 dropZone.addEventListener('drop', async (event) => {
   event.preventDefault();
   const file = event.dataTransfer.files[0];
   const arrayBuffer = await file.arrayBuffer();
   try {
     await processExcel(arrayBuffer);
-
+    
+    if (kund.trim().length != 0 && kund != "") { 
+      kund = document.getElementById('kund').value;
+    }
+    else {
+      kund = "Ingen kund specificerad";
+    }
+    if (orderDate.trim().length != 0 && orderDate != "") {
+      orderDate = document.getElementById('date').value;
+    }
+    else {
+      orderDate = getFormattedDate();
+    }
+    
     // Basically, the main function!
     fixaPlockListan();
 
@@ -356,6 +374,7 @@ dropZone.addEventListener('drop', async (event) => {
   }
 });
 
+// On submit.
 document.getElementById('excelForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   const fileInput = document.getElementById('excelFile');
@@ -369,6 +388,19 @@ document.getElementById('excelForm').addEventListener('submit', async (event) =>
 
   try {
     const result = await processExcel(arrayBuffer);
+
+    if (kund.trim().length != 0 && kund != "") { 
+      kund = document.getElementById('kund').value;
+    }
+    else {
+      kund = "Ingen kund specificerad";
+    }
+    if (orderDate.trim().length != 0 && orderDate != "") {
+      orderDate = document.getElementById('date').value;
+    }
+    else {
+      orderDate = getFormattedDate();
+    }
 
     // Basically, the main function!
     fixaPlockListan();
@@ -412,7 +444,7 @@ function extractArtikelAndDFP(data) {
       dfpIndex = headers.indexOf("Kollin");
     }
     if (headers.includes("Prognos DFP")) {
-      dfpIndex = headers.indexOf("Prognos DFP");
+      dfpIndex = headers.indexOf("Prognos DFP") + 1;
     }
     if (headers.includes("Beställda DFP")) {
       dfpIndex = headers.indexOf("Beställda DFP");
@@ -678,14 +710,15 @@ function insertMixPall(mixPall, comboPalls) {
     }
 
     // If there is a combo pall with more than 2 pallets, then remove a pallet from it and add the mix pallet to the removed pallet and put it in the comboPalls list.
-    else if (comboPalls[i].length > 2 && comboPalls[i][0].getStackHeight() < 4 && comboPalls[i][0].getHeight() + mixPall.getHeight() <= MAX_HEIGHT) {
-      // Sort the combo pallets in descending order by height.
-      comboPalls[i].sort((a, b) => b.getHeight() - a.getHeight());
-      // Remove the lowest pallet in the combo pall, and assign it to the local variable skvettPall.
-      skvettPall = comboPalls[i].pop();
-      canCombine = true;
-      break;
-    }
+    // There is no need to take out a skvett pall from a combo pall that's already well done, so skip it.
+    // else if (comboPalls[i].length > 2 && comboPalls[i][0].getStackHeight() < 4 && comboPalls[i][0].getHeight() + mixPall.getHeight() <= MAX_HEIGHT) {
+    //   // Sort the combo pallets in descending order by height.
+    //   comboPalls[i].sort((a, b) => b.getHeight() - a.getHeight());
+    //   // Remove the lowest pallet in the combo pall, and assign it to the local variable skvettPall.
+    //   skvettPall = comboPalls[i].pop();
+    //   canCombine = true;
+    //   break;
+    // }
   }
 
   if (skvettPall != null) {
@@ -785,12 +818,32 @@ function platserUsingStackHeight() {
 }
 
 function displayResults() {
+  // Hide title, radio buttons and the user inputs.
+  const pageTitle = document.getElementById('pageTitle');
+  pageTitle.style.display = 'none';
+  const radioButtons = document.getElementById('radioButtons');
+  radioButtons.style.display = 'none';
+  const userInputs = document.getElementById('userInputs');
+  userInputs.style.display = 'none';
+
   let outputArea = document.getElementById("output");
   outputArea.innerHTML = formatOutput();
 }
 
 function formatOutput() {
   let output = ``;
+  if (kund.trim().length != 0 && kund != "") {
+    output += `<h2><i>${kund}:&nbsp;&nbsp;&nbsp; </i><`;
+  }
+  else {
+    output += `<h2><i>Kund &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</i>`;
+  }
+  if (orderDate.trim().length != 0 && orderDate != "") {
+    output += `Datum: <i>${orderDate}</i></h2><br>`;
+  }
+  else {
+    output += `Datum: <i>${getFormattedDate()}</i></h2><br>`;
+  }
 
   const totalFullPalls = fullPallsQuantity(fullPalls);
   const SRS = skvettPalls.length + totalFullPalls;
@@ -798,20 +851,23 @@ function formatOutput() {
   const platser = calculatePlatser(skvettPalls, fullPalls);
 
   if (!document.getElementById('comboRadio').checked) {
-    output += `<br><br>Antal Platser: <i>${platser.toFixed(2)}</i><br><br>\n\n`;
-    output += `Antal Kolli: <i>${SRS}</i><br><br>`;
-    output += (`SRS-Pall: <i>${SRS}</i><br><br>`)
-    output += (`Lådor: <i>${totalQuantityOfBoxes()}</i><br><br>\n\n`);
+    output += `<p>Antal Platser: <i>${platser.toFixed(2)}</i><br><br></p>`;
+    output += `<p>Antal Kolli: <i>${SRS}</i><br><br></p>`;
+    output += (`<p>SRS-Pall: <i>${SRS}</i><br><br></p>`)
+    output += (`<p>Lådor: <i>${totalQuantityOfBoxes()}</i><br><br></p>`);
 
   }
   else {
-    output += `<br><br>Antal Kolli: <i>${Kolli}</i><br><br>\n\n`;
-    output += (`SRS Pall: <i>${SRS}</i><br><br>\n\n`);
-    output += (`Lådor: <i>${totalQuantityOfBoxes()}</i><br><br>\n\n`);
+    output += `<div class="kolli-container">`;
+
+    output += `<p>Antal Kolli: <i>${Kolli}</i><br><br></p>`;
+    output += (`<p>SRS Pall: <i>${SRS}</i><br><br></p>`);
+    output += (`<p>Lådor: <i>${totalQuantityOfBoxes()}</i><br><br></p>`);
+    output += "</div>";
   }
 
   output += `<p class='headText'>Full Pall:</p>\n`;
-  output += "<ul>"
+  output += `<ul>`;
 
 
   // Sort fullPalls by height in descending order.
@@ -822,13 +878,15 @@ function formatOutput() {
     for (const pall of fullPall) {
       prodId = pall.getProduct().getId();
     }
+    output += `<p class="full-pall">`
     output += `<li class="line-through">${prodId}: `;
 
     for (const pall of fullPall) {
       output += `(${pall.getQuantity()})` + " ";
     }
 
-    output += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[" + `${fullPall.length}` + "].</li>\n";
+    output += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[" + `${fullPall.length}` + "].</li></p>\n";
+
     
   }
   output += "</ul>"
@@ -838,23 +896,24 @@ function formatOutput() {
     comboPalls.sort((a, b) => b.reduce((sum, p) => sum + p.getHeight(), 0) - a.reduce((sum, p) => sum + p.getHeight(), 0));
 
     output += "\n\n <p class='headText'>Combo Pall: </p>\n";
-    output += "<ul>"
+    output += `<ul>`;
 
     for (const combo of comboPalls) {
       // If combo contains the mix pall then skip it.
       if (combo.some(pall => pall.getPallId() === "Mix Pall")) {
         continue;
       }
+      output += `<p class="combo-pall">`
       output += `<li class="line-through">`;
       for (const skvettPall of combo) {
         output += `\n${skvettPall.product.getId()}: ${skvettPall.getQuantity()}<br>`;
       }
-      output += "</li>";
+      output += "</li></p>";
     }
 
     // Find the combo pall that contains the mix pall.
     const mixCombo = comboPalls.find(combo => combo.some(pall => pall.getPallId() === "Mix Pall"));
-
+    // output += `<p class="mix-pall">`;
     if (mixCombo != null) {
       output += `<li class="line-through">`;
       for (const skvettPall of mixCombo) {
@@ -893,7 +952,7 @@ function formatOutput() {
   }
 
   output += "\n\n Mix Pall: \n\n";
-  output += "<ul>";
+  output += `<ul>`;
   // Sort the mix products by Id in ascending order.
   if (mixProducts.length > 0) {
     mixProducts.sort((a, b) => a.product.getId() - b.product.getId());
@@ -926,4 +985,12 @@ function totalQuantityOfBoxes(){
     totalQuantity += skvettPall.getQuantity();
   }
   return totalQuantity;
+}
+
+function getFormattedDate() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
