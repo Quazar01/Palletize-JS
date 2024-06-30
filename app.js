@@ -435,6 +435,7 @@ function extractArtikelAndDFP(data) {
     const headers = data[i];
     if (headers.includes("Artikelnummer")) {
       artikelIndex = headers.indexOf("Artikelnummer");
+      console.log("Artikelnummer: ", artikelIndex);
     }
 
     if (headers.includes("Lev artikel")) {
@@ -445,6 +446,7 @@ function extractArtikelAndDFP(data) {
     }
     if (headers.includes("Prognos DFP")) {
       dfpIndex = headers.indexOf("Prognos DFP") + (headers.indexOf("Prognos DFP") + 1);
+      console.log("defIndex: ", defIndex);
     }
     if (headers.includes("Beställda DFP")) {
       dfpIndex = headers.indexOf("Beställda DFP");
