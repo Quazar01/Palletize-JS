@@ -16,6 +16,10 @@
     display: none;
   }
 
+  .editToggle {
+    display: none;
+  }
+
   .footer {
     display: none;
   }
@@ -26,7 +30,7 @@
   }
 
   .content h1 {
-    font-size: 1.5em;
+    font-size: 2em;
   }
 
   .content p {
@@ -130,7 +134,7 @@
 }
 
 * {
-  font-size: 1.1em;
+  font-size: 1.06em;
   font-family: 'Arial', sans-serif;
   color: #0c0303;
   background-color: rgb(90, 165, 165);
@@ -171,11 +175,12 @@ input[type="file"]#excelFile {
 #dropZone {
   border: 2px solid #ec1010;
   border: 2px solid rgb(194, 194, 5);
-
+  display: flex;
+  justify-content: center;
   padding: 2em;
-  margin-left:15em;
-  margin-right:15em;
-  margin: 2em 15em;
+  /* margin-left:15em;
+  margin-right:15em; */
+  margin: 2em 25em;
   text-align: center;
   background-color: #f6f7fe;
   color: #555;
@@ -230,8 +235,23 @@ button[type="upload-button"]:hover {
   color: red;
 
 }
+
 .userInput {
-  border: none; border-bottom: 1px solid #100f0f; padding: 10px; font-size: 16px; outline: none; width: 200px; margin-bottom: 50px;
+  border: none; 
+  border-bottom: 1px solid #100f0f; 
+  padding: 10px; 
+  font-size: 16px; 
+  outline: none; 
+  width: 150px; 
+  margin-bottom: 50px;
+}
+
+.kundAndDate {
+  font-size: larger;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2em;
 }
 
 .kolli-container {
@@ -239,6 +259,7 @@ button[type="upload-button"]:hover {
   justify-content: center;
   align-items: center;
   gap: 2em;
+  margin-bottom: 3em;
 }
 
 #output {
@@ -247,10 +268,93 @@ button[type="upload-button"]:hover {
   color: #000000;
 }
 .headText {
-  font-size: 1.5em;
-  font-weight: bold;
+  font-size: 1.1em;
+  font-weight:500;
   text-align: center;
-  margin-bottom: 1em;
+}
+
+.editable-textarea {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  padding: 0;
+  margin: 0;
+  width: 70%;
+  resize: none;
+  overflow: hidden;
+}
+
+.editable-textarea:focus {
+  outline: none;
+  background-color: rgba(143, 143, 143, 0.05);
+}
+
+.PallHeader {
+  display: flex;
+  /* justify-content: space-between; */
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  gap: 1em;
+}
+
+.remove-icon {
+  font-size: 0.7em;
+  color: #999;
+  cursor: pointer;
+  margin-left: 2em;
+  /* padding-left: 3em; */
+  vertical-align: middle;
+  background-color: #fff9f9;
+}
+.editToggle, #addItem {
+  padding: 5px 10px;
+  margin: 5px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.editToggle {
+  text-decoration: underline;
+  font-size: medium;
+  background-color: #008CBA;
+  color: white;
+}
+
+#addItem {
+  background-color: #008CBA;
+  color: white;
+}
+.add-new-item-button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  /* padding: 10px 20px; */
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  /* margin: 4px 2px; */
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.add-new-item-button:hover {
+  background-color: #45a049;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.add-new-item-button:active {
+  background-color: #3e8e41;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transform: translateY(1px);
 }
 
 ul {
@@ -259,7 +363,9 @@ ul {
   display: flex;
   flex-wrap: wrap;
   justify-content: center; /* Modified */
+  align-items: center;
 }
+
 li {
   border: 1px solid rgb(150, 134, 134);
   margin: 5px;
@@ -271,17 +377,7 @@ li {
   align-items: center;
 }
 
-@media screen and (min-width: 1200px) {
-  ul {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-  li {
-    width: 30%;
-    margin: 0 1em 1em 0;
-  }
-}
+
 @media screen and (min-width: 1200px) {
   ul {
     display: flex;
@@ -317,5 +413,9 @@ li {
   li {
     width: 90%;
     margin: 0 0 1em 0;
+  }
+  #dropZone {
+    margin: 0;
+
   }
 }

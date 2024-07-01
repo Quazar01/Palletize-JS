@@ -1,5 +1,7 @@
 // Description: This file contains the main logic for the application. It processes the Excel file, extracts the data, and generates the output based on the requirements. The output is then displayed on the web page for the user to view. 
 
+// TODO: Before editing the list, check if the user is in edit mode for any of the lists. If so, do not allow editing. Done!
+// TODO: Text goes out of place when editing Kolli, SRS, and Platser. Fix it.
 class EmptyPallet {
   constructor(length, width, height) {
     this.length = length;
@@ -86,7 +88,7 @@ class SkvettPall {
 
   getStackHeight() {
     let box = this.getBox();
-    let stackHeight = Math.ceil ((this.quantity / box.getBoxesInRow()));
+    let stackHeight = Math.ceil((this.quantity / box.getBoxesInRow()));
     return stackHeight;
   }
 
@@ -163,7 +165,7 @@ class MixProduct {
 }
 
 class MixPall {
-  constructor(pallId,quantity, quantityAsRedBoxes, stackHeight, totalHeight) {  
+  constructor(pallId, quantity, quantityAsRedBoxes, stackHeight, totalHeight) {
     this.pallId = pallId;
     this.quantity = quantity;
     this.quantityAsRedBoxes = quantityAsRedBoxes;
@@ -203,7 +205,7 @@ class Order {
 }
 
 const SRSPallet = new EmptyPallet(1200, 800, 150);
-const MAX_HEIGHT = 1395;
+const MAX_HEIGHT = 1350;
 const EnPlats = 1250 * 2;
 
 const red = new Box(400, 300, 148, 136, 8, 64, 8);
@@ -351,8 +353,8 @@ dropZone.addEventListener('drop', async (event) => {
   const arrayBuffer = await file.arrayBuffer();
   try {
     await processExcel(arrayBuffer);
-    
-    if (kund.trim().length != 0 && kund != "") { 
+
+    if (kund.trim().length != 0 && kund != "") {
       kund = document.getElementById('kund').value;
     }
     else {
@@ -364,7 +366,7 @@ dropZone.addEventListener('drop', async (event) => {
     else {
       orderDate = getFormattedDate();
     }
-    
+
     // Basically, the main function!
     fixaPlockListan();
 
@@ -389,7 +391,7 @@ document.getElementById('excelForm').addEventListener('submit', async (event) =>
   try {
     const result = await processExcel(arrayBuffer);
 
-    if (kund.trim().length != 0 && kund != "") { 
+    if (kund.trim().length != 0 && kund != "") {
       kund = document.getElementById('kund').value;
     }
     else {
@@ -427,15 +429,14 @@ async function processExcel(arrayBuffer) {
 function extractArtikelAndDFP(data) {
   const result = [];
 
-// Check for headers in the first 10 rows.
-// TODO: Modify this to fit the list from DAGAB as well.
+  // Check for headers in the first 10 rows.
+  // TODO: Modify this to fit the list from DAGAB as well.
   let artikelIndex = -1;
   let dfpIndex = -1;
   for (let i = 0; i <= 10; i++) {
     const headers = data[i];
     if (headers.includes("Artikelnummer")) {
       artikelIndex = headers.indexOf("Artikelnummer");
-      console.log("Artikelnummer: ", artikelIndex);
     }
 
     if (headers.includes("Lev artikel")) {
@@ -446,9 +447,9 @@ function extractArtikelAndDFP(data) {
     }
     if (headers.includes("Prognos DFP")) {
       dfpIndex = headers.indexOf("Prognos DFP");
-      console.log("defIndex: ", defIndex);
     }
     if (headers.includes("Beställda DFP")) {
+      // values are in the Beställda DFP column and merged with next column. For example if Beställda DFP is in column M then the values are in column M and N.
       dfpIndex = headers.indexOf("Beställda DFP");
     }
     if (artikelIndex !== -1 && dfpIndex !== -1) break; // Found both headers, no need to continue
@@ -498,7 +499,7 @@ function fixaPlockListan() {
       let productFullPalls = [];
 
       let howManyFullPalls = parseInt(order.quantity / boxesInFullPall);
-      
+
       for (let i = 0; i < howManyFullPalls; i++) {
         productFullPalls.push(new FullPall(product, boxesInFullPall));
       }
@@ -517,7 +518,7 @@ function fixaPlockListan() {
 
       {
         productFullPalls.push(new FullPall(product, order.quantity));
-        
+
       } else {
         // If the remainder can be stacked, 
         // handle it using handleSkvettOrMixPall method.
@@ -546,18 +547,18 @@ function fixaPlockListan() {
   });
 
   // Check if the quantity could be a skvett pall or a mix product.
-function handleSkvettOrMixPall(product, quantity) {
-  // If it's on a blandpall. 
-  if (quantity < product.getBox().boxesInRow) {
-    mixProducts.push(new MixProduct(product, quantity));
-    quantity = 0;
-  } else {
-    // If it's a skvett pall.
-    const skvettPall = new SkvettPall(product, quantity);
-    skvettPalls.push(skvettPall);
-    // console.log("skvett pall height: ", skvettPall.getHeight() + " mm");
+  function handleSkvettOrMixPall(product, quantity) {
+    // If it's on a blandpall. 
+    if (quantity < product.getBox().boxesInRow) {
+      mixProducts.push(new MixProduct(product, quantity));
+      quantity = 0;
+    } else {
+      // If it's a skvett pall.
+      const skvettPall = new SkvettPall(product, quantity);
+      skvettPalls.push(skvettPall);
+      // console.log("skvett pall height: ", skvettPall.getHeight() + " mm");
+    }
   }
-}
 
   // combinePallets stack the skvett pallets over each other as long as they don't exceed height of 1400 mm in the most efficient way so the result is as least parcels (kolli) as possible.
   let skvettMixPall = formSkvettPall(mixProducts);
@@ -574,29 +575,212 @@ function handleSkvettOrMixPall(product, quantity) {
 
   const platserStackHeight = platserUsingStackHeight();
   console.log("Platser using stack height: ", platserStackHeight);
+  let enkelCombine = document.getElementById('individualRadio').checked;
   displayResults();
 
-  async function crossSelectedPall(event) {
+  function createEditOutputHandler(enkelCombine) {
+    return function (e) {
+      EditOutput(e, enkelCombine);
+    }
+  }
+
+  async function EditOutput(e, enkelCombine) {
+    // Do not allow editing if the user is in edit mode for any of the lists.
+
+    if (!enkelCombine) {
+      if (document.getElementById('edit-toggle-full-pall').textContent === "Klar" ||
+        document.getElementById('edit-toggle-combo-pall').textContent === "Klar" || 
+        document.getElementById('edit-toggle-mix-pall').textContent === "Klar") 
+        {
+        alert("Du kan inte redigera listan när du redan redigerar en annan lista.");
+        return;
+        }
+    }
+    else {
+      if (document.getElementById('edit-toggle-full-pall').textContent === "Klar" ||
+        document.getElementById('edit-toggle-enkel-pall').textContent === "Klar" ||
+        document.getElementById('edit-toggle-mix-pall').textContent === "Klar") {
+        alert("Du kan inte redigera listan när du redan redigerar en annan lista.");
+        return;
+      }
+    }
+
     try {
-      const element = event.target;
-      const text = element.textContent;
 
-      // Check if the text is already underlined
-      const isUnderlined = element.style.textDecoration === 'line-through';
-      
-      // Toggle the underline style
-      element.style.textDecoration = isUnderlined ? 'none' : 'line-through';
+      // There's no longer a need for the if statement, since the event listener is only added to the editable elements.
+      // Change it later.
+      if (e.target.tagName === 'LI' || e.target.tagName === 'I') {
+        const originalContent = e.target.innerHTML;
+        const textarea = document.createElement('textarea');
+        textarea.className = "editable-textarea";
+        textarea.value = originalContent.replace(/<br>/g, '\n');
 
+        e.target.innerHTML = '';
+        e.target.appendChild(textarea);
+        textarea.focus();
+
+        textarea.addEventListener('blur', function () {
+          e.target.innerHTML = this.value.trim().replace(/^\n|\n$/g, '').replace(/\n/g, '<br>');
+        });
+
+        textarea.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            this.blur();
+          }
+        });
+      }
       // Optionally, you can perform additional async operations here
     } catch (error) {
       console.error('Error occurred:', error);
     }
   }
 
-  const elements = document.querySelectorAll('.line-through');
+  const elements = document.querySelectorAll('.editable');
   elements.forEach(element => {
-    element.addEventListener('click', crossSelectedPall);
+    element.addEventListener('click', createEditOutputHandler(enkelCombine));
   });
+
+  // Edit Full Pall list.
+  const fullPallList = document.getElementById('full-pall-list');
+  const editToggleFullPall = document.getElementById('edit-toggle-full-pall');
+  const fullPallState = { isEditMode: false };
+  // Create a wrapper function to capture the current state.
+  function editFullPallWrapper() {
+    editList(fullPallList, editToggleFullPall, fullPallState);
+  }
+  editToggleFullPall.addEventListener('click', editFullPallWrapper);
+
+  // Edit Combo Pall list.
+  if (!enkelCombine) {
+
+    const comboPallList = document.getElementById('combo-pall-list');
+    const editToggleComboPall = document.getElementById('edit-toggle-combo-pall');
+    const comboPallState = { isEditMode: false };
+    // Create a wrapper function to capture the current state.
+    function editComboPallWrapper() {
+      editList(comboPallList, editToggleComboPall, comboPallState);
+    }
+
+    editToggleComboPall.addEventListener('click', editComboPallWrapper);
+  }
+
+  if (enkelCombine) {
+    // Edit Enkel Pall list.
+    const enkelPallList = document.getElementById('enkel-pall-list');
+    const editToggleEnkelPall = document.getElementById('edit-toggle-enkel-pall');
+    const enkelPallState = { isEditMode: false };
+    // Create a wrapper function to capture the current state.
+    function editEnkelPallWrapper() {
+      editList(enkelPallList, editToggleEnkelPall, enkelPallState);
+    }
+    editToggleEnkelPall.addEventListener('click', editEnkelPallWrapper);
+  }
+
+  // Edit Mix Pall list.
+  const mixPallList = document.getElementById('mix-pall-list');
+  const editToggleMixPall = document.getElementById('edit-toggle-mix-pall');
+  const mixPallState = { isEditMode: false };
+  // Create a wrapper function to capture the current state.
+  function editMixPallWrapper() {
+    editList(mixPallList, editToggleMixPall, mixPallState);
+  }
+  editToggleMixPall.addEventListener('click', editMixPallWrapper);
+
+
+
+  async function editList(list, editToggle, state) {
+
+    try {
+      toggleEditMode(list, editToggle, state);
+
+      function toggleEditMode(list, editToggle, state) {
+
+        state.isEditMode = !state.isEditMode;
+
+        editToggle.textContent = state.isEditMode ? "Klar" : "Redigera";
+        console.log("EditToggle: ", editToggle.textContent);
+
+        if (state.isEditMode) {
+          // Create a container for the Edit/Done button and Add New Item button
+          const buttonContainer = document.createElement('div');
+          buttonContainer.id = 'editButtonContainer';
+          buttonContainer.style.display = 'flex';
+          buttonContainer.style.flexDirection = 'column';
+          buttonContainer.style.alignItems = 'center';
+          buttonContainer.style.gap = '5px'; // Add some space between buttons
+
+          // Move the Edit/Done button into the container
+          editToggle.parentNode.insertBefore(buttonContainer, editToggle.nextSibling);
+          buttonContainer.appendChild(editToggle);
+
+          // Create and add the Add New Item button
+          const addButton = document.createElement('button');
+          addButton.textContent = "Lägg till ny artikel";
+          addButton.id = "addItem";
+          addButton.className = "add-new-item-button";
+          buttonContainer.appendChild(addButton);
+
+          addButton.addEventListener('click', addNewItem);
+
+          list.querySelectorAll('li').forEach(addRemoveIcon);
+
+        } else {
+          // Remove the Add New Item button and the container
+          const buttonContainer = document.getElementById('editButtonContainer');
+          if (buttonContainer) {
+            // Move the Edit/Done button back to its original position
+            buttonContainer.parentNode.insertBefore(editToggle, buttonContainer);
+            buttonContainer.remove();
+          }
+
+          list.querySelectorAll('.remove-icon').forEach(icon => icon.remove());
+        }
+      }
+
+      function addRemoveIcon(li) {
+        const removeIcon = document.createElement('span');
+        removeIcon.innerHTML = "&#x2715;"; // This is the "×" character
+        removeIcon.className = "remove-icon";
+        removeIcon.addEventListener('click', () => li.remove());
+        li.appendChild(removeIcon);
+      }
+
+      function addNewItem() {
+        const newItem = document.createElement('li');
+        newItem.textContent = 'Artikelnummer: Antal';
+        newItem.className = 'editable';
+        list.appendChild(newItem);
+        addRemoveIcon(newItem);
+        makeEditable(newItem);
+      }
+
+      function makeEditable(li) {
+        const textarea = document.createElement('textarea');
+        textarea.className = "editable-textarea";
+
+        li.innerHTML = '';
+        li.appendChild(textarea);
+        textarea.focus();
+
+        textarea.addEventListener('blur', function () {
+          li.textContent = this.value.trim();
+          if (state.isEditMode) addRemoveIcon(li);
+        });
+
+        textarea.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            this.blur();
+          }
+        });
+      }
+    }
+    catch (error) {
+      console.error('Error occurred:', error);
+    }
+  }
+
 
 }
 
@@ -619,27 +803,27 @@ function formSkvettPall(mixProducts) {
 
   for (const mixProduct of mixProducts) {
     // if the product's box is red
-    if(mixProduct.getBox() === red) {
+    if (mixProduct.getBox() === red) {
       quantityAsRedBoxes += mixProduct.getQuantity();
       boxesInMixPall += mixProduct.getQuantity();
     }
     // if the product's box is green
-    else if(mixProduct.getBox() === green) {
+    else if (mixProduct.getBox() === green) {
       quantityAsRedBoxes += mixProduct.getQuantity() * 2;
       boxesInMixPall += mixProduct.getQuantity();
     }
     // if the product's box is black
-    else if(mixProduct.getBox() === black) {
+    else if (mixProduct.getBox() === black) {
       quantityAsRedBoxes += mixProduct.getQuantity() * (red.maxStackHeight / black.maxStackHeight);
       boxesInMixPall += mixProduct.getQuantity();
     }
     // if the product's box is blue
-    else if(mixProduct.getBox() === blue) {
+    else if (mixProduct.getBox() === blue) {
       quantityAsRedBoxes += mixProduct.getQuantity() * (red.maxStackHeight / blue.maxStackHeight);
       boxesInMixPall += mixProduct.getQuantity();
     }
     // If the product's box is renrum
-    else if(mixProduct.getBox() === renrum) {
+    else if (mixProduct.getBox() === renrum) {
       quantityAsRedBoxes += mixProduct.getQuantity() * (red.maxStackHeight / renrum.maxStackHeight);
       boxesInMixPall += mixProduct.getQuantity();
     }
@@ -704,7 +888,7 @@ function insertMixPall(mixPall, comboPalls) {
   for (let i = 0; i < comboPalls.length; i++) {
     // If there is a combo pall that's low enough to add the mix pall to it, remove it from the comboPalls list and add the mix pall to it later.
     if (comboPalls[i].length < 2 && comboPalls[i][0].getStackHeight() < 4 && comboPalls[i][0].getHeight() + mixPall.getHeight() <= MAX_HEIGHT) {
-      skvettPall = comboPalls[i];
+      skvettPall = comboPalls[i].pop();
       // console.log("inside handleMixPall: ", skvettPall);
       comboPallToRemove = i;
       canCombine = true;
@@ -735,7 +919,8 @@ function insertMixPall(mixPall, comboPalls) {
   if (canCombine) {
     skvettPalls.push(mixPall);
     let comboPall = [mixPall, skvettPall];
-
+    // Remove the skvett pall from the comboPalls list.
+    comboPalls.splice(comboPallToRemove, 1);
     // Add the new combo pall to the comboPalls list.
     comboPalls.push(comboPall);
   }
@@ -746,31 +931,31 @@ function insertMixPall(mixPall, comboPalls) {
 }
 
 function combineComboPalls() {
-    // Get the comboPall that contains the mix pall.
-    const mixCombo = comboPalls.find(combo => combo.some(pall => pall.getPallId() === "Mix Pall"));
-    // Get the hieght of the mixCombo.
-    const mixComboHeight = mixCombo.reduce((sum, pall) => sum + pall.getHeight(), 0);
+  // Get the comboPall that contains the mix pall.
+  const mixCombo = comboPalls.find(combo => combo.some(pall => pall.getPallId() === "Mix Pall"));
+  // Get the hieght of the mixCombo.
+  const mixComboHeight = mixCombo.reduce((sum, pall) => sum + pall.getHeight(), 0);
 
-    for (let combo of comboPalls) {
-      // If combo contains the mix pall then skip it.
-      if (combo.some(pall => pall.getPallId() === "Mix Pall")) {
-        continue;
-      }
-      // If the combo contains more than one pallet then skip it.
-      if (combo.length > 1) {
-        continue;
-      }
-      // If the combo contains only one pallet, then try to combine it with the mixCombo.
-      if (mixCombo != null) {
-        // If the height of the combo pall is less than the max height, then combine it with the mixCombo.
-        if (combo[0].getHeight() + mixComboHeight <= MAX_HEIGHT) {
-          mixCombo.push(combo[0]);
-          comboPalls.splice(comboPalls.indexOf(combo), 1);
-          comboPalls.splice(comboPalls.indexOf(mixCombo), 1);
-          comboPalls.push(mixCombo);
-        }
+  for (let combo of comboPalls) {
+    // If combo contains the mix pall then skip it.
+    if (combo.some(pall => pall.getPallId() === "Mix Pall")) {
+      continue;
+    }
+    // If the combo contains more than one pallet then skip it.
+    if (combo.length > 1) {
+      continue;
+    }
+    // If the combo contains only one pallet, then try to combine it with the mixCombo.
+    if (mixCombo != null) {
+      // If the height of the combo pall is less than the max height, then combine it with the mixCombo.
+      if (combo[0].getHeight() + mixComboHeight <= MAX_HEIGHT) {
+        mixCombo.push(combo[0]);
+        comboPalls.splice(comboPalls.indexOf(combo), 1);
+        comboPalls.splice(comboPalls.indexOf(mixCombo), 1);
+        comboPalls.push(mixCombo);
       }
     }
+  }
 }
 
 function calculatePlatser(skvettPalls, fullPalls) {
@@ -783,7 +968,7 @@ function calculatePlatser(skvettPalls, fullPalls) {
     totalHeight += skvettPall.getHeight();
   }
   // Calculate the total height of the full pallets.
-  for (const fullPall of fullPalls) {    
+  for (const fullPall of fullPalls) {
     for (const pall of fullPall) {
       totalHeight += pall.getHeight();
     }
@@ -835,16 +1020,16 @@ function displayResults() {
 function formatOutput() {
   let output = ``;
   if (kund.trim().length != 0 && kund != "") {
-    output += `<h2><i>${kund}:&nbsp;&nbsp;&nbsp; </i><`;
+    output += `<h1 class="kundAndDate"><i>${kund}</i>`;
   }
   else {
-    output += `<h2><i>Kund &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</i>`;
+    output += `<h1 class="kundAndDate"><i>Kund</i>`;
   }
   if (orderDate.trim().length != 0 && orderDate != "") {
-    output += `Datum: <i>${orderDate}</i></h2><br>`;
+    output += `<i>Datum: ${orderDate}</i></h1><br>`;
   }
   else {
-    output += `Datum: <i>${getFormattedDate()}</i></h2><br>`;
+    output += `<i>Datum: ${getFormattedDate()}<i></h1><br>`;
   }
 
   const totalFullPalls = fullPallsQuantity(fullPalls);
@@ -853,24 +1038,29 @@ function formatOutput() {
   const platser = calculatePlatser(skvettPalls, fullPalls);
 
   if (!document.getElementById('comboRadio').checked) {
-    output += `<p>Antal Platser: <i>${platser.toFixed(2)}</i><br><br></p>`;
-    output += `<p>Antal Kolli: <i>${SRS}</i><br><br></p>`;
-    output += (`<p>SRS-Pall: <i>${SRS}</i><br><br></p>`)
-    output += (`<p>Lådor: <i>${totalQuantityOfBoxes()}</i><br><br></p>`);
-
+    output += `<div class="kolli-container">`;
+    output += `<p class="editable">Antal Platser: <i>${platser.toFixed(2)}</i></p>`;
+    output += `<p class="editable">Antal Kolli: <i>${SRS}</i></p>`;
+    output += (`<p class="editable">SRS-Pall: <i>${SRS}</i></p>`)
+    output += (`<p class="editable">Lådor: <i>${totalQuantityOfBoxes()}</i></p>`);
+    output += "</div>";
   }
   else {
     output += `<div class="kolli-container">`;
 
-    output += `<p>Antal Kolli: <i>${Kolli}</i><br><br></p>`;
-    output += (`<p>SRS Pall: <i>${SRS}</i><br><br></p>`);
-    output += (`<p>Lådor: <i>${totalQuantityOfBoxes()}</i><br><br></p>`);
+    output += `<p class="editable">Antal Kolli: <i>${Kolli}</i></p>`;
+    output += (`<p class="editable">SRS Pall: <i>${SRS}</i></p>`);
+    output += (`<p class="editable">Lådor: <i>${totalQuantityOfBoxes()}</i></p>`);
     output += "</div>";
   }
 
-  output += `<p class='headText'>Full Pall:</p>\n`;
-  output += `<ul>`;
-
+  // Prepare the list for editing.
+  output += `<div class="fullPallContainer">`
+  output += `<div class="PallHeader">`;
+  output += `<br> <span class="headText">Full Pall: </span><br>
+                    <button id="edit-toggle-full-pall" class="editToggle">Redigera</button>`;
+  output += `</div>`;
+  output += `<ul id="full-pall-list">`;
 
   // Sort fullPalls by height in descending order.
   fullPalls.sort((a, b) => b.reduce((sum, p) => sum + p.getHeight(), 0) - a.reduce((sum, p) => sum + p.getHeight(), 0));
@@ -880,16 +1070,15 @@ function formatOutput() {
     for (const pall of fullPall) {
       prodId = pall.getProduct().getId();
     }
+
     output += `<p class="full-pall">`
-    output += `<li class="line-through">${prodId}: `;
+    output += `<li class="editable">${prodId}: `;
 
     for (const pall of fullPall) {
       output += `(${pall.getQuantity()})` + " ";
     }
 
-    output += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[" + `${fullPall.length}` + "].</li></p>\n";
-
-    
+    output += "{" + `${fullPall.length}` + "}.</li></p>\n";
   }
   output += "</ul>"
 
@@ -897,8 +1086,13 @@ function formatOutput() {
     // Sort comboPalls by height in descending order.
     comboPalls.sort((a, b) => b.reduce((sum, p) => sum + p.getHeight(), 0) - a.reduce((sum, p) => sum + p.getHeight(), 0));
 
-    output += "\n\n <p class='headText'>Combo Pall: </p>\n";
-    output += `<ul>`;
+    // Prepare the list for editing.
+    output += `<div class="comboPallContainer">`
+    output += `<div class="PallHeader">`;
+    output += `<br> <span class="headText">Combo Pall: </span><br>
+                      <button id="edit-toggle-combo-pall" class="editToggle">Redigera</button>`;
+    output += `</div>`;
+    output += `<ul id="combo-pall-list">`;
 
     for (const combo of comboPalls) {
       // If combo contains the mix pall then skip it.
@@ -906,9 +1100,12 @@ function formatOutput() {
         continue;
       }
       output += `<p class="combo-pall">`
-      output += `<li class="line-through">`;
-      for (const skvettPall of combo) {
-        output += `\n${skvettPall.product.getId()}: ${skvettPall.getQuantity()}<br>`;
+      output += `<li class="editable">`;
+      for (let i = 0; i < combo.length; i++) {
+        output += `${combo[i].product.getId()}: ${combo[i].getQuantity()}`;
+        if (i < combo.length - 1) {
+          output += "<br>";
+        }
       }
       output += "</li></p>";
     }
@@ -917,13 +1114,13 @@ function formatOutput() {
     const mixCombo = comboPalls.find(combo => combo.some(pall => pall.getPallId() === "Mix Pall"));
     // output += `<p class="mix-pall">`;
     if (mixCombo != null) {
-      output += `<li class="line-through">`;
+      output += `<li class="editable">`;
       for (const skvettPall of mixCombo) {
         if (skvettPall.getPallId() == "Mix Pall") {
-          output += `\n${skvettPall.getPallId()}: ${skvettPall.getQuantity()}<br>`
+          output += `${skvettPall.getPallId()}: ${skvettPall.getQuantity()}<br>`
           continue;
         } else {
-          output += `\n${skvettPall.product.getId()}: ${skvettPall.getQuantity()}<br>`;
+          output += `${skvettPall.product.getId()}: ${skvettPall.getQuantity()}<br>`;
         }
       }
       output += "</li>";
@@ -932,7 +1129,14 @@ function formatOutput() {
 
   } else {
 
-    output += `\n\n<p class='headText'> Enkel Pall: </p>\n`;
+    // Prepare the list for editing.
+    output += `<div id="enkel-pall-container">`;
+    output += `<div class="PallHeader">`;
+    output += `<br> <span class="headText">Enkel Pall: </span><br>
+                      <button id="edit-toggle-enkel-pall" class="editToggle">Redigera</button>`;
+    output += `</div>`;
+    output += `<ul id="enkel-pall-list">`;
+
     // Sort the pallets by height in descending order.
     skvettPalls.sort((a, b) => b.getHeight() - a.getHeight());
 
@@ -941,29 +1145,36 @@ function formatOutput() {
       if (skvettPall.getPallId() === "Mix Pall") {
         continue;
       }
-      output += `<li class="line-through">${skvettPall.product.getId()}: ${skvettPall.getQuantity()} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${skvettPall.getStackHeight()})</li>\n`;
+      output += `<li class="editable">${skvettPall.product.getId()}: ${skvettPall.getQuantity()}</li>\n`;
     }
     // Find the mix pallet in the skvett pallets list.
     const mixPall = skvettPalls.find(pall => pall.getPallId() === "Mix Pall");
 
     if (mixPall != null) {
-      output += `<li class="line-through">${mixPall.getPallId()}: ${mixPall.getQuantity()} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${mixPall.getStackHeight()})</li>\n`;
+      output += `<li class="editable">${mixPall.getPallId()}: ${mixPall.getQuantity()} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${mixPall.getStackHeight()})</li>\n`;
     }
-    
+
     output += "</ul>";
   }
 
-  output += "\n\n Mix Pall: \n\n";
-  output += `<ul>`;
+  // Prepare the list for editing.
+  output += `<div id="mixPallContainer">`;
+  output += `<div class="PallHeader">`;
+  output += `<br> <span>Mix Pall: </span><br>
+                    <button id="edit-toggle-mix-pall" class="editToggle">Redigera</button>`;
+  output += `</div>`;
+  output += `<ul id="mix-pall-list">`;
+
   // Sort the mix products by Id in ascending order.
   if (mixProducts.length > 0) {
     mixProducts.sort((a, b) => a.product.getId() - b.product.getId());
     for (const mixProduct of mixProducts) {
-      output += `<li class='line-through'>${mixProduct.product.getId()}: ${mixProduct.getQuantity()}</li>\n`;
+      output += `<li class='editable'>${mixProduct.product.getId()}: ${mixProduct.getQuantity()}</li>\n`;
     }
   }
 
   output += "</ul>";
+  output += "</div>";
 
   return output;
 }
@@ -976,7 +1187,7 @@ function fullPallsQuantity(fullPalls) {
   return counter;
 }
 
-function totalQuantityOfBoxes(){
+function totalQuantityOfBoxes() {
   let totalQuantity = 0;
   for (const fullPall of fullPalls) {
     for (const pall of fullPall) {
