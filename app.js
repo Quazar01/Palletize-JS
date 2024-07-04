@@ -205,10 +205,10 @@ class Order {
 }
 
 const SRSPallet = new EmptyPallet(1200, 800, 150);
-const MAX_HEIGHT = 1350;
-const EnPlats = 1250 * 2;
+const MAX_HEIGHT = 1320;
+const EnPlats = MAX_HEIGHT * 2;
 
-const red = new Box(400, 300, 148, 136, 8, 64, 8);
+const red = new Box(400, 300, 148, 136, 8, 64, 8); // Box(length, width, fullHeight, stackedUponHeight, maxStackHeight, fullPall, boxesInRow)
 const green = new Box(600, 400, 167, 154, 7, 28, 4);
 const blue = new Box(400, 300, 108, 96, 11, 88, 8);
 const renrum = new Box(400, 300, 108, 66, 16, 128, 8);
@@ -429,27 +429,31 @@ async function processExcel(arrayBuffer) {
 function extractArtikelAndDFP(data) {
   const result = [];
 
-  // Check for headers in the first 10 rows.
-  // TODO: Modify this to fit the list from DAGAB as well.
+  // Check for headers in the first 10 rows. DONE!
+  // TODO: Modify this to fit the list from DAGAB as well. DONE!
   let artikelIndex = -1;
   let dfpIndex = -1;
-  for (let i = 0; i <= 10; i++) {
+  for (let i = 0; i <= 20; i++) {
     const headers = data[i];
     if (headers.includes("Artikelnummer")) {
       artikelIndex = headers.indexOf("Artikelnummer");
     }
 
+    // For the list from DAGAB
     if (headers.includes("Lev artikel")) {
       artikelIndex = headers.indexOf("Lev artikel");
     }
+    // For the list from DAGAB
     if (headers.includes("Kollin")) {
       dfpIndex = headers.indexOf("Kollin");
     }
     if (headers.includes("Prognos DFP")) {
+      // The values of this header are in two columns. For example if Prognos DFP is in column M then the values are in column M and N.
       dfpIndex = headers.indexOf("Prognos DFP");
+
     }
     if (headers.includes("Beställda DFP")) {
-      // values are in the Beställda DFP column and merged with next column. For example if Beställda DFP is in column M then the values are in column M and N.
+
       dfpIndex = headers.indexOf("Beställda DFP");
     }
     if (artikelIndex !== -1 && dfpIndex !== -1) break; // Found both headers, no need to continue
@@ -575,215 +579,299 @@ function fixaPlockListan() {
 
   const platserStackHeight = platserUsingStackHeight();
   console.log("Platser using stack height: ", platserStackHeight);
-  let enkelCombine = document.getElementById('individualRadio').checked;
+
+  // let enkelCombine = document.getElementById('edit-toggle-enkel-pall');
+  // console.log("Enkel Combine: ", enkelCombine);
   displayResults();
 
-  function createEditOutputHandler(enkelCombine) {
-    return function (e) {
-      EditOutput(e, enkelCombine);
+  // // Edit Full Pall list.
+  // const fullPallList = document.getElementById('full-pall-list');
+  // const editToggleFullPall = document.getElementById('edit-toggle-full-pall');
+  // const fullPallState = { isEditMode: false };
+  // // Create a wrapper function to capture the current state.
+  // function editFullPallWrapper() {
+  //   editList(fullPallList, editToggleFullPall, fullPallState);
+  // }
+  // editToggleFullPall.addEventListener('click', editFullPallWrapper);
+
+  // // Edit Combo Pall list.
+  // if (!enkelCombine) {
+
+  //   const comboPallList = document.getElementById('combo-pall-list');
+  //   const editToggleComboPall = document.getElementById('edit-toggle-combo-pall');
+  //   const comboPallState = { isEditMode: false };
+  //   // Create a wrapper function to capture the current state.
+  //   function editComboPallWrapper() {
+  //     editList(comboPallList, editToggleComboPall, comboPallState);
+  //   }
+
+  //   editToggleComboPall.addEventListener('click', editComboPallWrapper);
+  // }
+
+  // if (enkelCombine) {
+  //   // Edit Enkel Pall list.
+  //   const enkelPallList = document.getElementById('enkel-pall-list');
+  //   const editToggleEnkelPall = document.getElementById('edit-toggle-enkel-pall');
+  //   const enkelPallState = { isEditMode: false };
+  //   // Create a wrapper function to capture the current state.
+  //   function editEnkelPallWrapper() {
+  //     editList(enkelPallList, editToggleEnkelPall, enkelPallState);
+  //   }
+  //   editToggleEnkelPall.addEventListener('click', editEnkelPallWrapper);
+  // }
+
+  // // Edit Mix Pall list.
+  // const mixPallList = document.getElementById('mix-pall-list');
+  // const editToggleMixPall = document.getElementById('edit-toggle-mix-pall');
+  // const mixPallState = { isEditMode: false };
+  // // Create a wrapper function to capture the current state.
+  // function editMixPallWrapper() {
+  //   editList(mixPallList, editToggleMixPall, mixPallState);
+  // }
+  // editToggleMixPall.addEventListener('click', editMixPallWrapper);
+
+  // let editButtons = document.querySelectorAll('.editToggle');
+  // editButtons.forEach(button => {
+  //   button.addEventListener('click', editList1(button));
+  // });
+
+
+  document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('editToggle')) {
+      editList(event.target);
+    } else if (event.target.classList.contains('editable')) {
+      EditOutput(event);
     }
-  }
-
-  async function EditOutput(e, enkelCombine) {
-    // Do not allow editing if the user is in edit mode for any of the lists.
-
-    if (!enkelCombine) {
-      if (document.getElementById('edit-toggle-full-pall').textContent === "Klar" ||
-        document.getElementById('edit-toggle-combo-pall').textContent === "Klar" || 
-        document.getElementById('edit-toggle-mix-pall').textContent === "Klar") 
-        {
-        alert("Du kan inte redigera listan när du redan redigerar en annan lista.");
-        return;
-        }
-    }
-    else {
-      if (document.getElementById('edit-toggle-full-pall').textContent === "Klar" ||
-        document.getElementById('edit-toggle-enkel-pall').textContent === "Klar" ||
-        document.getElementById('edit-toggle-mix-pall').textContent === "Klar") {
-        alert("Du kan inte redigera listan när du redan redigerar en annan lista.");
-        return;
-      }
-    }
-
-    try {
-
-      // There's no longer a need for the if statement, since the event listener is only added to the editable elements.
-      // Change it later.
-      if (e.target.tagName === 'LI' || e.target.tagName === 'I') {
-        const originalContent = e.target.innerHTML;
-        const textarea = document.createElement('textarea');
-        textarea.className = "editable-textarea";
-        textarea.value = originalContent.replace(/<br>/g, '\n');
-
-        e.target.innerHTML = '';
-        e.target.appendChild(textarea);
-        textarea.focus();
-
-        textarea.addEventListener('blur', function () {
-          e.target.innerHTML = this.value.trim().replace(/^\n|\n$/g, '').replace(/\n/g, '<br>');
-        });
-
-        textarea.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            this.blur();
-          }
-        });
-      }
-      // Optionally, you can perform additional async operations here
-    } catch (error) {
-      console.error('Error occurred:', error);
-    }
-  }
-
-  const elements = document.querySelectorAll('.editable');
-  elements.forEach(element => {
-    element.addEventListener('click', createEditOutputHandler(enkelCombine));
   });
 
-  // Edit Full Pall list.
-  const fullPallList = document.getElementById('full-pall-list');
-  const editToggleFullPall = document.getElementById('edit-toggle-full-pall');
-  const fullPallState = { isEditMode: false };
-  // Create a wrapper function to capture the current state.
-  function editFullPallWrapper() {
-    editList(fullPallList, editToggleFullPall, fullPallState);
+}
+
+function EditOutput(e) {
+  try {
+    if (e.target.tagName === 'LI') {
+      let isEditMode = false;
+      let removeIcon;
+      if (e.target.tagName === 'LI' && e.target.querySelector('.remove-icon')) {
+        isEditMode = true;
+        removeIcon = e.target.querySelector('.remove-icon');
+        removeIcon.remove();
+      }
+      
+      const originalContent = e.target.innerText;
+      const originalStyles = window.getComputedStyle(e.target);
+
+      const textarea = document.createElement('textarea');
+      textarea.className = "editable-textarea";
+      textarea.id = "editable-textarea";
+      textarea.value = originalContent;
+
+      // Set textarea dimensions to match the original element
+      textarea.style.width = originalStyles.width;
+      textarea.style.height = originalStyles.height;
+      textarea.style.minHeight = originalStyles.height; // Ensure minimum height
+
+      e.target.innerHTML = '';
+      e.target.appendChild(textarea);
+      textarea.focus();
+
+      // Adjust height to fit content
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+      });
+
+      textarea.addEventListener('blur', function () {
+        let newContent = this.value.trim();
+
+        newContent = newContent.replace(/^\n|\n$/g, '').replace(/\n/g, '<br>');
+
+        e.target.innerHTML = newContent;
+        if (isEditMode) {
+          e.target.appendChild(removeIcon);
+        }
+      });
+
+      textarea.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          this.blur();
+        }
+      });
+    }
+    else  if (e.target.tagName === 'SPAN' && e.target.classList.contains('editable')) {
+      const originalContent = e.target.innerText;
+      const parentP = e.target.closest('p');
+      const originalStyles = window.getComputedStyle(e.target);
+
+      const textarea = document.createElement('textarea');
+      textarea.className = "editable-textarea";
+      textarea.value = originalContent;
+
+      // Set textarea dimensions and styles to match the original span
+      textarea.style.width = originalStyles.width;
+      textarea.style.height = originalStyles.height;
+      textarea.style.minHeight = originalStyles.height;
+      textarea.style.fontSize = originalStyles.fontSize;
+      textarea.style.lineHeight = originalStyles.lineHeight;
+      textarea.style.padding = originalStyles.padding;
+      textarea.style.margin = originalStyles.margin;
+      textarea.style.border = 'none';
+      textarea.style.background = 'transparent';
+      textarea.style.resize = 'none';
+      textarea.style.overflow = 'hidden';
+
+      // Replace the span with the textarea
+      e.target.replaceWith(textarea);
+      textarea.focus();
+
+      // Adjust height to fit content
+      const adjustHeight = () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      };
+      
+      adjustHeight();
+      textarea.addEventListener('input', adjustHeight);
+
+      textarea.addEventListener('blur', function () {
+        let newContent = this.value.trim();
+        const newSpan = document.createElement('span');
+        newSpan.className = 'editable';
+        newSpan.textContent = newContent;
+        this.replaceWith(newSpan);
+      });
+
+      textarea.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.blur();
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error occurred:', error);
   }
-  editToggleFullPall.addEventListener('click', editFullPallWrapper);
+}
 
-  // Edit Combo Pall list.
-  if (!enkelCombine) {
+const editStates = {};
 
-    const comboPallList = document.getElementById('combo-pall-list');
-    const editToggleComboPall = document.getElementById('edit-toggle-combo-pall');
-    const comboPallState = { isEditMode: false };
-    // Create a wrapper function to capture the current state.
-    function editComboPallWrapper() {
-      editList(comboPallList, editToggleComboPall, comboPallState);
+function editList(button) {
+  try {
+    let errorMessages = document.querySelectorAll('.editing-error-message');
+    if (errorMessages.length > 0) {
+      errorMessages.forEach(message => message.remove());
     }
 
-    editToggleComboPall.addEventListener('click', editComboPallWrapper);
-  }
-
-  if (enkelCombine) {
-    // Edit Enkel Pall list.
-    const enkelPallList = document.getElementById('enkel-pall-list');
-    const editToggleEnkelPall = document.getElementById('edit-toggle-enkel-pall');
-    const enkelPallState = { isEditMode: false };
-    // Create a wrapper function to capture the current state.
-    function editEnkelPallWrapper() {
-      editList(enkelPallList, editToggleEnkelPall, enkelPallState);
+    if (!button || !button.id) {
+      console.error('Invalid button:', button);
+      return;
     }
-    editToggleEnkelPall.addEventListener('click', editEnkelPallWrapper);
-  }
 
-  // Edit Mix Pall list.
-  const mixPallList = document.getElementById('mix-pall-list');
-  const editToggleMixPall = document.getElementById('edit-toggle-mix-pall');
-  const mixPallState = { isEditMode: false };
-  // Create a wrapper function to capture the current state.
-  function editMixPallWrapper() {
-    editList(mixPallList, editToggleMixPall, mixPallState);
-  }
-  editToggleMixPall.addEventListener('click', editMixPallWrapper);
+    let editToggle = button;
+    let listId = editToggle.id.replace('edit-toggle-', '') + '-list';
+    let list = document.getElementById(listId);
 
+    if (!list) {
+      console.error('List not found:', listId);
+      return;
+    }
 
+    // Initialize state for this toggle if it doesn't exist
+    if (!editStates[editToggle.id]) {
+      editStates[editToggle.id] = { isEditMode: false };
+    }
 
-  async function editList(list, editToggle, state) {
+    let state = editStates[editToggle.id];
 
-    try {
-      toggleEditMode(list, editToggle, state);
+    function toggleEditMode(list, editToggle, state) {
+      state.isEditMode = !state.isEditMode;
+      editToggle.textContent = state.isEditMode ? "Klar" : "Redigera";
 
-      function toggleEditMode(list, editToggle, state) {
+      if (state.isEditMode) {
+        const buttonContainer = document.createElement('div');
+        buttonContainer.id = 'editButtonContainer-' + editToggle.id;
+        buttonContainer.style.display = 'flex';
+        buttonContainer.style.flexDirection = 'column';
+        buttonContainer.style.alignItems = 'center';
+        buttonContainer.style.gap = '5px';
 
-        state.isEditMode = !state.isEditMode;
-
-        editToggle.textContent = state.isEditMode ? "Klar" : "Redigera";
-        console.log("EditToggle: ", editToggle.textContent);
-
-        if (state.isEditMode) {
-          // Create a container for the Edit/Done button and Add New Item button
-          const buttonContainer = document.createElement('div');
-          buttonContainer.id = 'editButtonContainer';
-          buttonContainer.style.display = 'flex';
-          buttonContainer.style.flexDirection = 'column';
-          buttonContainer.style.alignItems = 'center';
-          buttonContainer.style.gap = '5px'; // Add some space between buttons
-
-          // Move the Edit/Done button into the container
+        if (editToggle.parentNode) {
           editToggle.parentNode.insertBefore(buttonContainer, editToggle.nextSibling);
           buttonContainer.appendChild(editToggle);
-
-          // Create and add the Add New Item button
-          const addButton = document.createElement('button');
-          addButton.textContent = "Lägg till ny artikel";
-          addButton.id = "addItem";
-          addButton.className = "add-new-item-button";
-          buttonContainer.appendChild(addButton);
-
-          addButton.addEventListener('click', addNewItem);
-
-          list.querySelectorAll('li').forEach(addRemoveIcon);
-
         } else {
-          // Remove the Add New Item button and the container
-          const buttonContainer = document.getElementById('editButtonContainer');
-          if (buttonContainer) {
-            // Move the Edit/Done button back to its original position
-            buttonContainer.parentNode.insertBefore(editToggle, buttonContainer);
-            buttonContainer.remove();
-          }
-
-          list.querySelectorAll('.remove-icon').forEach(icon => icon.remove());
+          console.error('Edit toggle not in DOM');
+          return;
         }
-      }
 
-      function addRemoveIcon(li) {
+        const addButton = document.createElement('button');
+        addButton.textContent = "Lägg till ny artikel";
+        addButton.id = "addItem-" + editToggle.id;
+        addButton.className = "add-new-item-button";
+        buttonContainer.appendChild(addButton);
+
+        addButton.addEventListener('click', () => addNewItem(list, state));
+
+        list.querySelectorAll('li').forEach(li => addRemoveIcon(li, state));
+      } else {
+        const buttonContainer = document.getElementById('editButtonContainer-' + editToggle.id);
+        if (buttonContainer && buttonContainer.parentNode) {
+          buttonContainer.parentNode.insertBefore(editToggle, buttonContainer);
+          buttonContainer.remove();
+        }
+
+        list.querySelectorAll('.remove-icon').forEach(icon => icon.remove());
+      }
+    }
+
+    function addRemoveIcon(li) {
+      if (!li.querySelector('.remove-icon')) {
         const removeIcon = document.createElement('span');
-        removeIcon.innerHTML = "&#x2715;"; // This is the "×" character
+        removeIcon.innerHTML = "&#x2715;";
         removeIcon.className = "remove-icon";
         removeIcon.addEventListener('click', () => li.remove());
         li.appendChild(removeIcon);
       }
-
-      function addNewItem() {
-        const newItem = document.createElement('li');
-        newItem.textContent = 'Artikelnummer: Antal';
-        newItem.className = 'editable';
-        list.appendChild(newItem);
-        addRemoveIcon(newItem);
-        makeEditable(newItem);
-      }
-
-      function makeEditable(li) {
-        const textarea = document.createElement('textarea');
-        textarea.className = "editable-textarea";
-
-        li.innerHTML = '';
-        li.appendChild(textarea);
-        textarea.focus();
-
-        textarea.addEventListener('blur', function () {
-          li.textContent = this.value.trim();
-          if (state.isEditMode) addRemoveIcon(li);
-        });
-
-        textarea.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            this.blur();
-          }
-        });
-      }
     }
-    catch (error) {
-      console.error('Error occurred:', error);
+
+    function addNewItem(list, state) {
+      const newItem = document.createElement('li');
+      newItem.textContent = 'Artikelnummer: Antal';
+      newItem.className = 'editable';
+      list.appendChild(newItem);
+      addRemoveIcon(newItem, state);
+      makeEditable(newItem, state);
     }
+
+    function makeEditable(li, state) {
+      const textarea = document.createElement('textarea');
+      textarea.className = "editable-textarea";
+
+      li.innerHTML = '';
+      li.appendChild(textarea);
+      textarea.focus();
+
+      textarea.addEventListener('blur', function () {
+        li.textContent = this.value.trim();
+        if (state.isEditMode) addRemoveIcon(li);
+      });
+
+      textarea.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          this.blur();
+        }
+      });
+    }
+
+    toggleEditMode(list, editToggle, state);
   }
-
-
+  catch (error) {
+    console.error('Error occurred:', error);
+  }
 }
-
 // Fetch the wanted product by its id.
 function getProduct(productId, products) {
   return products.find(product => product.getId() === productId) || null;
@@ -1023,7 +1111,7 @@ function formatOutput() {
     output += `<h1 class="kundAndDate"><i>${kund}</i>`;
   }
   else {
-    output += `<h1 class="kundAndDate"><i>Kund</i>`;
+    output += `<h1 class="kundAndDate">`;
   }
   if (orderDate.trim().length != 0 && orderDate != "") {
     output += `<i>Datum: ${orderDate}</i></h1><br>`;
@@ -1039,18 +1127,18 @@ function formatOutput() {
 
   if (!document.getElementById('comboRadio').checked) {
     output += `<div class="kolli-container">`;
-    output += `<p class="editable">Antal Platser: <i>${platser.toFixed(2)}</i></p>`;
-    output += `<p class="editable">Antal Kolli: <i>${SRS}</i></p>`;
-    output += (`<p class="editable">SRS-Pall: <i>${SRS}</i></p>`)
-    output += (`<p class="editable">Lådor: <i>${totalQuantityOfBoxes()}</i></p>`);
+    output += `<p>Antal Platser: <span class="editable">${platser.toFixed(2)}</span></p>`;
+    output += `<p>Antal Kolli: <span class="editable">${SRS}</span></p>`;
+    output += (`<p>SRS-Pall: <span class="editable">${SRS}</span></p>`)
+    output += (`<p>Lådor: <span class="editable">${totalQuantityOfBoxes()}</span></p>`);
     output += "</div>";
   }
   else {
     output += `<div class="kolli-container">`;
 
-    output += `<p class="editable">Antal Kolli: <i>${Kolli}</i></p>`;
-    output += (`<p class="editable">SRS Pall: <i>${SRS}</i></p>`);
-    output += (`<p class="editable">Lådor: <i>${totalQuantityOfBoxes()}</i></p>`);
+    output += `<p>Antal Kolli: <span class="editable">${Kolli}</span></p>`;
+    output += (`<p>SRS Pall: <span class="editable">${SRS}</span></p>`);
+    output += (`<p>Lådor: <span class="editable">${totalQuantityOfBoxes()}</span></p>`);
     output += "</div>";
   }
 
@@ -1071,14 +1159,14 @@ function formatOutput() {
       prodId = pall.getProduct().getId();
     }
 
-    output += `<p class="full-pall">`
-    output += `<li class="editable">${prodId}: `;
+
+    output += `<li class="editable">${prodId}: <br>`;
 
     for (const pall of fullPall) {
-      output += `(${pall.getQuantity()})` + " ";
+      output += `${pall.getQuantity()}` + " ";
     }
 
-    output += "{" + `${fullPall.length}` + "}.</li></p>\n";
+    output += "{" + `${fullPall.length}` + "}.</li>";
   }
   output += "</ul>"
 
@@ -1099,15 +1187,16 @@ function formatOutput() {
       if (combo.some(pall => pall.getPallId() === "Mix Pall")) {
         continue;
       }
-      output += `<p class="combo-pall">`
+      // output += `<p class="combo-pall">`
       output += `<li class="editable">`;
+
       for (let i = 0; i < combo.length; i++) {
         output += `${combo[i].product.getId()}: ${combo[i].getQuantity()}`;
         if (i < combo.length - 1) {
           output += "<br>";
         }
       }
-      output += "</li></p>";
+      output += `</li>`;
     }
 
     // Find the combo pall that contains the mix pall.
@@ -1117,10 +1206,10 @@ function formatOutput() {
       output += `<li class="editable">`;
       for (const skvettPall of mixCombo) {
         if (skvettPall.getPallId() == "Mix Pall") {
-          output += `${skvettPall.getPallId()}: ${skvettPall.getQuantity()}<br>`
+          output += `${skvettPall.getPallId()}: ${skvettPall.getQuantity()}  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${skvettPall.getStackHeight()})<br>`
           continue;
         } else {
-          output += `${skvettPall.product.getId()}: ${skvettPall.getQuantity()}<br>`;
+          output += `${skvettPall.product.getId()}: ${skvettPall.getQuantity()}  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${skvettPall.getStackHeight()})<br>`;
         }
       }
       output += "</li>";
@@ -1145,13 +1234,19 @@ function formatOutput() {
       if (skvettPall.getPallId() === "Mix Pall") {
         continue;
       }
-      output += `<li class="editable">${skvettPall.product.getId()}: ${skvettPall.getQuantity()}</li>\n`;
+
+
+      output += `<li class="editable">`;
+
+      output += `${skvettPall.product.getId()}: ${skvettPall.getQuantity()}</li>`;
     }
     // Find the mix pallet in the skvett pallets list.
     const mixPall = skvettPalls.find(pall => pall.getPallId() === "Mix Pall");
 
     if (mixPall != null) {
-      output += `<li class="editable">${mixPall.getPallId()}: ${mixPall.getQuantity()} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${mixPall.getStackHeight()})</li>\n`;
+      output += `<li class="editable">`
+
+      output += `${mixPall.getPallId()}: ${mixPall.getQuantity()} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${mixPall.getStackHeight()})</li>`;
     }
 
     output += "</ul>";
@@ -1169,7 +1264,9 @@ function formatOutput() {
   if (mixProducts.length > 0) {
     mixProducts.sort((a, b) => a.product.getId() - b.product.getId());
     for (const mixProduct of mixProducts) {
-      output += `<li class='editable'>${mixProduct.product.getId()}: ${mixProduct.getQuantity()}</li>\n`;
+      output += `<li class='editable'>`
+
+      output += `${mixProduct.product.getId()}: ${mixProduct.getQuantity()}</li>`;
     }
   }
 

@@ -70,71 +70,18 @@
     width: 15%;
   }
 
-  /* .content ul li h2 {
-    font-size: 1.2em;
+  #errorField {
+    display: none;
   }
 
-  .content ul li p {
-    font-size: 1em;
-  }
-
-  .content ul li ul {
-    list-style: none;
-    padding: 0;
-  }
-
-  .content ul li ul li {
-    border: 1px solid #000;
-    margin: 0 0 1em 0;
-    padding: 10px;
-  }
-
-  .content ul li ul li h3 {
-    font-size: 1em;
-  }
-
-  .content ul li ul li p {
-    font-size: 0.8em;
-  }
-
-  .content ul li ul li ul {
-    list-style: none;
-    padding: 0;
-  }
-
-  .content ul li ul li ul li {
-    border: 1px solid #000;
-    margin: 0 0 1em 0;
-    padding: 10px;
-  }
-
-  .content ul li ul li ul li h4 {
-    font-size: 0.8em;
-  }
-
-  .content ul li ul li ul li p {
-    font-size: 0.6em;
-  }
-
-  .content ul li ul li ul li ul {
-    list-style: none;
-    padding: 0;
-  }
-
-  .content ul li ul li ul li ul li {
-    border: 1px solid #000;
-    margin: 0 0 1em 0;
-    padding: 10px
-  } */
-
-  .hide-on-print {
+  .hide-on-print, .remove-icon, .add-new-item-button, .editToggle {
     display: none;
   }
 
 }
 
 * {
-  font-size: 1.06em;
+  font-size: 1.05em;
   font-family: 'Arial', sans-serif;
   color: #0c0303;
   background-color: rgb(90, 165, 165);
@@ -144,14 +91,6 @@
 body {
   padding-top: 20px;
 }
-/* body {
-  display: flex;
-  justify-self: center;
-  align-items: center;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-} */
 
 .radio{
   display: inline-block;
@@ -262,6 +201,17 @@ button[type="upload-button"]:hover {
   margin-bottom: 3em;
 }
 
+.kolli-container p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.kolli-container .editable,
+.kolli-container .editable-textarea {
+  margin-left: 0.5em;
+}
+
 #output {
   color: rgb(40, 1, 1);
   text-align: center;
@@ -303,12 +253,16 @@ button[type="upload-button"]:hover {
 }
 
 .remove-icon {
+  position: absolute;
+  right: 50px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 0.7em;
   color: #999;
   cursor: pointer;
-  margin-left: 2em;
-  /* padding-left: 3em; */
-  vertical-align: middle;
+  /* margin-left: 0.5em; */
+  /* padding-left: 100px; */
+  /* vertical-align: middle; */
   background-color: #fff9f9;
 }
 .editToggle, #addItem {
@@ -320,7 +274,7 @@ button[type="upload-button"]:hover {
 }
 
 .editToggle {
-  text-decoration: underline;
+  /* text-decoration: underline; */
   font-size: medium;
   background-color: #008CBA;
   color: white;
@@ -356,7 +310,9 @@ button[type="upload-button"]:hover {
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   transform: translateY(1px);
 }
-
+/* list is <ul>
+editToggle is the button
+state is isEditMode    */
 ul {
   list-style: none;
   padding: 0;
@@ -374,7 +330,8 @@ li {
   width: 30%;
   background-color: #fff9f9;
   margin: 0 1em 1em 0;
-  align-items: center;
+  position: relative;
+  padding-right: 20px;
 }
 
 
