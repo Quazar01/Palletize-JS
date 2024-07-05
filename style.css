@@ -50,6 +50,8 @@
     width: 15%;
   }
 
+  
+
   .full-pall li{
     border: 1px solid #000;
     margin: 10px;
@@ -70,6 +72,7 @@
     width: 15%;
   }
 
+
   #errorField {
     display: none;
   }
@@ -78,6 +81,22 @@
     display: none;
   }
 
+  .kund-and-date-container {
+    border-bottom: 2px solid #000;
+    width: 70%;
+    text-align: center;
+    margin-bottom: 2em;
+    margin-left: 8em;
+  }
+
+  .kundAndDate {
+    font-size: 1.2em;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2em;
+    font-style: italic;
+  }
 }
 
 * {
@@ -185,12 +204,27 @@ button[type="upload-button"]:hover {
   margin-bottom: 50px;
 }
 
+.kund-and-date-container {
+  border-bottom: 2px solid #000;
+  width: 70%;
+  text-align: center;
+  margin-bottom: 2em;
+  margin-left: 8em;
+}
+
 .kundAndDate {
-  font-size: larger;
+  /* font-size: larger;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 2em;
+  font-style: italic; */
+  font-size: larger;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2em;
+  font-style: italic;
 }
 
 .kolli-container {
@@ -325,7 +359,7 @@ ul {
 li {
   border: 1px solid rgb(150, 134, 134);
   margin: 5px;
-  border-radius: 20px;
+  border-radius: 15px;
   padding: 10px;
   width: 30%;
   background-color: #fff9f9;

@@ -1108,16 +1108,18 @@ function displayResults() {
 function formatOutput() {
   let output = ``;
   if (kund.trim().length != 0 && kund != "") {
+    output += `<div class="kund-and-date-container">`;
     output += `<h1 class="kundAndDate"><i>${kund}</i>`;
   }
   else {
+    output += `<div class="kund-and-date-container">`;
     output += `<h1 class="kundAndDate">`;
   }
   if (orderDate.trim().length != 0 && orderDate != "") {
-    output += `<i>Datum: ${orderDate}</i></h1><br>`;
+    output += `<i>Datum: ${orderDate}</i></h1></div><br>`;
   }
   else {
-    output += `<i>Datum: ${getFormattedDate()}<i></h1><br>`;
+    output += `<i>Datum: ${getFormattedDate()}<i></h1></div><br>`;
   }
 
   const totalFullPalls = fullPallsQuantity(fullPalls);
