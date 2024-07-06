@@ -449,7 +449,7 @@ function extractArtikelAndDFP(data) {
     }
     if (headers.includes("Prognos DFP")) {
       // The values of this header are in two columns. For example if Prognos DFP is in column M then the values are in column M and N.
-      dfpIndex = headers.indexOf("Prognos DFP");
+      dfpIndex = headers.indexOf("Prognos DFP") + 1;
 
     }
     if (headers.includes("Beställda DFP")) {
