@@ -1,7 +1,7 @@
 // Description: This file contains the main logic for the application. It processes the Excel file, extracts the data, and generates the output based on the requirements. The output is then displayed on the web page for the user to view. 
 
 // TODO: Before editing the list, check if the user is in edit mode for any of the lists. If so, do not allow editing. Done!
-// TODO: Text goes out of place when editing Kolli, SRS, and Platser. Fix it.
+// TODO: Text goes out of place when editing Kolli, SRS, and Platser. Fix it. DONE!
 class EmptyPallet {
   constructor(length, width, height) {
     this.length = length;
@@ -550,19 +550,7 @@ function fixaPlockListan() {
     }
   });
 
-  // Check if the quantity could be a skvett pall or a mix product.
-  function handleSkvettOrMixPall(product, quantity) {
-    // If it's on a blandpall. 
-    if (quantity < product.getBox().boxesInRow) {
-      mixProducts.push(new MixProduct(product, quantity));
-      quantity = 0;
-    } else {
-      // If it's a skvett pall.
-      const skvettPall = new SkvettPall(product, quantity);
-      skvettPalls.push(skvettPall);
-      // console.log("skvett pall height: ", skvettPall.getHeight() + " mm");
-    }
-  }
+
 
   // combinePallets stack the skvett pallets over each other as long as they don't exceed height of 1400 mm in the most efficient way so the result is as least parcels (kolli) as possible.
   let skvettMixPall = formSkvettPall(mixProducts);
@@ -597,6 +585,20 @@ function fixaPlockListan() {
     }
   });
 
+}
+
+// Check if the quantity could be a skvett pall or a mix product.
+function handleSkvettOrMixPall(product, quantity) {
+  // If it's on a blandpall. 
+  if (quantity < product.getBox().boxesInRow) {
+    mixProducts.push(new MixProduct(product, quantity));
+    quantity = 0;
+  } else {
+    // If it's a skvett pall.
+    const skvettPall = new SkvettPall(product, quantity);
+    skvettPalls.push(skvettPall);
+    // console.log("skvett pall height: ", skvettPall.getHeight() + " mm");
+  }
 }
 
 function EditOutput(e) {
@@ -916,9 +918,6 @@ function formSkvettPall(mixProducts) {
 
 //   return parcelPallets;
 // }
-
-
-
 
 
 // Use Branch and Bound algorithm instead of BFD
