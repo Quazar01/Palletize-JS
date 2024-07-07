@@ -205,7 +205,7 @@ class Order {
 }
 
 const SRSPallet = new EmptyPallet(1200, 800, 150);
-const MAX_HEIGHT = 1350;
+const MAX_HEIGHT = 1360;
 const EnPlats = MAX_HEIGHT * 2;
 
 const red = new Box(400, 300, 148, 136, 8, 64, 8); // Box(length, width, fullHeight, stackedUponHeight, maxStackHeight, fullPall, boxesInRow)
@@ -566,12 +566,13 @@ function fixaPlockListan() {
 
   // combinePallets stack the skvett pallets over each other as long as they don't exceed height of 1400 mm in the most efficient way so the result is as least parcels (kolli) as possible.
   let skvettMixPall = formSkvettPall(mixProducts);
+  skvettPalls.push(skvettMixPall);
   // Combine the skvett pallets in the Best Fit Descending (BFD) approach, and put them in the comboPalls list.
   comboPalls = combinePallets(skvettPalls, MAX_HEIGHT);
   // If there is a mix pallet, handle it.
-  if (skvettMixPall != null) {
-    insertMixPall(skvettMixPall, comboPalls);
-  }
+  // if (skvettMixPall != null) {
+  //   insertMixPall(skvettMixPall, comboPalls);
+  // }
 
   // combineComboPalls();
   const platser = calculatePlatser(skvettPalls, fullPalls);
@@ -580,61 +581,13 @@ function fixaPlockListan() {
   const platserStackHeight = platserUsingStackHeight();
   console.log("Platser using stack height: ", platserStackHeight);
 
-  // let enkelCombine = document.getElementById('edit-toggle-enkel-pall');
-  // console.log("Enkel Combine: ", enkelCombine);
+  console.log("Full Palls: ", fullPalls);
+  console.log("Combo Palls: ", comboPalls);
+  console.log("Skvett Palls: ", skvettPalls);
+  console.log("Mix Products: ", mixProducts);
   displayResults();
 
-  // // Edit Full Pall list.
-  // const fullPallList = document.getElementById('full-pall-list');
-  // const editToggleFullPall = document.getElementById('edit-toggle-full-pall');
-  // const fullPallState = { isEditMode: false };
-  // // Create a wrapper function to capture the current state.
-  // function editFullPallWrapper() {
-  //   editList(fullPallList, editToggleFullPall, fullPallState);
-  // }
-  // editToggleFullPall.addEventListener('click', editFullPallWrapper);
-
-  // // Edit Combo Pall list.
-  // if (!enkelCombine) {
-
-  //   const comboPallList = document.getElementById('combo-pall-list');
-  //   const editToggleComboPall = document.getElementById('edit-toggle-combo-pall');
-  //   const comboPallState = { isEditMode: false };
-  //   // Create a wrapper function to capture the current state.
-  //   function editComboPallWrapper() {
-  //     editList(comboPallList, editToggleComboPall, comboPallState);
-  //   }
-
-  //   editToggleComboPall.addEventListener('click', editComboPallWrapper);
-  // }
-
-  // if (enkelCombine) {
-  //   // Edit Enkel Pall list.
-  //   const enkelPallList = document.getElementById('enkel-pall-list');
-  //   const editToggleEnkelPall = document.getElementById('edit-toggle-enkel-pall');
-  //   const enkelPallState = { isEditMode: false };
-  //   // Create a wrapper function to capture the current state.
-  //   function editEnkelPallWrapper() {
-  //     editList(enkelPallList, editToggleEnkelPall, enkelPallState);
-  //   }
-  //   editToggleEnkelPall.addEventListener('click', editEnkelPallWrapper);
-  // }
-
-  // // Edit Mix Pall list.
-  // const mixPallList = document.getElementById('mix-pall-list');
-  // const editToggleMixPall = document.getElementById('edit-toggle-mix-pall');
-  // const mixPallState = { isEditMode: false };
-  // // Create a wrapper function to capture the current state.
-  // function editMixPallWrapper() {
-  //   editList(mixPallList, editToggleMixPall, mixPallState);
-  // }
-  // editToggleMixPall.addEventListener('click', editMixPallWrapper);
-
-  // let editButtons = document.querySelectorAll('.editToggle');
-  // editButtons.forEach(button => {
-  //   button.addEventListener('click', editList1(button));
-  // });
-
+  
 
   document.addEventListener('click', function(event) {
     if (event.target.classList.contains('editToggle')) {
@@ -928,40 +881,92 @@ function formSkvettPall(mixProducts) {
 
 // Combining the skvett pallets in the Best Fit Descending (BFD) approach,
 // to get the least possible number of parcels to be shipped.
+// function combinePallets(pallets, maxSum) {
+//   // Modify the function so it combines pallets according to
+//   // their stack height instead of height in cm. 
+//   // Max height is the red max stack-height. 
+//   // Sort the pallets array in descending order by height
+//   pallets.sort((a, b) => b.getHeight() - a.getHeight());
+
+//   const parcelPallets = [];
+
+//   // For each pallet, find the best fit bin (pallet stack)
+//   for (let pallet of pallets) {
+
+//     let bestFitIndex = -1;
+//     let minRemainingHeight = maxSum;
+
+//     for (let i = 0; i < parcelPallets.length; i++) {
+//       const currentHeight = parcelPallets[i].reduce((sum, p) => sum + p.getHeight(), 0);
+//       const remainingHeight = maxSum - (currentHeight + pallet.getHeight());
+
+//       if (remainingHeight >= 0 && remainingHeight < minRemainingHeight) {
+//         bestFitIndex = i;
+//         minRemainingHeight = remainingHeight;
+//       }
+//     }
+
+//     // Place the pallet in the best fit bin or create a new bin
+//     if (bestFitIndex !== -1) {
+//       parcelPallets[bestFitIndex].push(pallet);
+//     } else {
+//       parcelPallets.push([pallet]);
+//     }
+//   }
+
+//   return parcelPallets;
+// }
+
+
+
+
+
+// Use Branch and Bound algorithm instead of BFD
 function combinePallets(pallets, maxSum) {
-  // Modify the function so it combines pallets according to
-  // their stack height instead of height in cm. 
-  // Max height is the red max stack-height. 
-  // Sort the pallets array in descending order by height
   pallets.sort((a, b) => b.getHeight() - a.getHeight());
 
-  const parcelPallets = [];
+  const lowerBound = Math.ceil(pallets.reduce((sum, p) => sum + p.getHeight(), 0) / maxSum);
+  let bestSolution = null;
+  let bestSolutionSize = pallets.length; // Worst case: one pallet per bin
 
-  // For each pallet, find the best fit bin (pallet stack)
-  for (let pallet of pallets) {
+  function branch(index, currentSolution) {
+    // Base case: all pallets placed
+    if (index === pallets.length) {
+      if (currentSolution.length < bestSolutionSize) {
+        // Create a deep copy of the current solution without using JSON
+        bestSolution = currentSolution.map(bin => [...bin]);
+        bestSolutionSize = currentSolution.length;
+      }
+      return;
+    }
 
-    let bestFitIndex = -1;
-    let minRemainingHeight = maxSum;
+    // Pruning: if current solution size plus lower bound for remaining pallets
+    // is worse than the best solution, stop exploring this branch
+    if (currentSolution.length + Math.ceil(pallets.slice(index).reduce((sum, p) => sum + p.getHeight(), 0) / maxSum) >= bestSolutionSize) {
+      return;
+    }
 
-    for (let i = 0; i < parcelPallets.length; i++) {
-      const currentHeight = parcelPallets[i].reduce((sum, p) => sum + p.getHeight(), 0);
-      const remainingHeight = maxSum - (currentHeight + pallet.getHeight());
+    const currentPallet = pallets[index];
 
-      if (remainingHeight >= 0 && remainingHeight < minRemainingHeight) {
-        bestFitIndex = i;
-        minRemainingHeight = remainingHeight;
+    // Try adding to existing bins
+    for (let i = 0; i < currentSolution.length; i++) {
+      const binHeight = currentSolution[i].reduce((sum, p) => sum + p.getHeight(), 0);
+      if (binHeight + currentPallet.getHeight() <= maxSum) {
+        currentSolution[i].push(currentPallet);
+        branch(index + 1, currentSolution);
+        currentSolution[i].pop();
       }
     }
 
-    // Place the pallet in the best fit bin or create a new bin
-    if (bestFitIndex !== -1) {
-      parcelPallets[bestFitIndex].push(pallet);
-    } else {
-      parcelPallets.push([pallet]);
-    }
+    // Try creating a new bin
+    currentSolution.push([currentPallet]);
+    branch(index + 1, currentSolution);
+    currentSolution.pop();
   }
 
-  return parcelPallets;
+  branch(0, []);
+
+  return bestSolution;
 }
 
 // Combine Mix Pall with the lowest combo pall if possible.
