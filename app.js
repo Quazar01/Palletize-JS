@@ -206,7 +206,7 @@ class Order {
 
 const SRSPallet = new EmptyPallet(1200, 800, 150);
 const MAX_HEIGHT = 1360;
-const EnPlats = MAX_HEIGHT * 2;
+const EnPlats = 1270 * 2;
 
 const red = new Box(400, 300, 148, 136, 8, 64, 8); // Box(length, width, fullHeight, stackedUponHeight, maxStackHeight, fullPall, boxesInRow)
 const green = new Box(600, 400, 167, 154, 7, 28, 4);
@@ -518,6 +518,7 @@ function fixaPlockListan() {
       if (product.getBox() === red && stackHeight > 6 || // for red.
         product.getBox() === green && stackHeight > 5 ||     // for green.
         product.getBox() === renrum && stackHeight > 12 || // for renrum.
+        product.getBox() === blue && stackHeight > 9 || // for blue.
         product.getBox() === black && stackHeight > 4)     // for black.
 
       {
@@ -569,10 +570,7 @@ function fixaPlockListan() {
   const platserStackHeight = platserUsingStackHeight();
   console.log("Platser using stack height: ", platserStackHeight);
 
-  console.log("Full Palls: ", fullPalls);
-  console.log("Combo Palls: ", comboPalls);
-  console.log("Skvett Palls: ", skvettPalls);
-  console.log("Mix Products: ", mixProducts);
+
   displayResults();
 
   
@@ -1148,7 +1146,7 @@ function formatOutput() {
     output += "</div>";
   }
 
-  // Prepare the list for editing.
+  // FULL PALL
   output += `<div class="fullPallContainer">`
   output += `<div class="PallHeader">`;
   output += `<br> <span class="headText">Full Pall: </span><br>
@@ -1180,7 +1178,7 @@ function formatOutput() {
     // Sort comboPalls by height in descending order.
     comboPalls.sort((a, b) => b.reduce((sum, p) => sum + p.getHeight(), 0) - a.reduce((sum, p) => sum + p.getHeight(), 0));
 
-    // Prepare the list for editing.
+    // COMBO PALL
     output += `<div class="comboPallContainer">`
     output += `<div class="PallHeader">`;
     output += `<br> <span class="headText">Combo Pall: </span><br>
@@ -1212,10 +1210,10 @@ function formatOutput() {
       output += `<li class="editable">`;
       for (const skvettPall of mixCombo) {
         if (skvettPall.getPallId() == "Mix Pall") {
-          output += `${skvettPall.getPallId()}: ${skvettPall.getQuantity()}  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${skvettPall.getStackHeight()})<br>`
+          output += `${skvettPall.getPallId()}: ${skvettPall.getQuantity()}<br>`
           continue;
         } else {
-          output += `${skvettPall.product.getId()}: ${skvettPall.getQuantity()}  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${skvettPall.getStackHeight()})<br>`;
+          output += `${skvettPall.product.getId()}: ${skvettPall.getQuantity()}<br>`;
         }
       }
       output += "</li>";
@@ -1224,7 +1222,7 @@ function formatOutput() {
 
   } else {
 
-    // Prepare the list for editing.
+    // ENKEL PALL
     output += `<div id="enkel-pall-container">`;
     output += `<div class="PallHeader">`;
     output += `<br> <span class="headText">Enkel Pall: </span><br>
@@ -1258,7 +1256,7 @@ function formatOutput() {
     output += "</ul>";
   }
 
-  // Prepare the list for editing.
+  // Mix Products.
   output += `<div id="mixPallContainer">`;
   output += `<div class="PallHeader">`;
   output += `<br> <span>Mix Pall: </span><br>
