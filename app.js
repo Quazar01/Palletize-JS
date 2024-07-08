@@ -2,6 +2,13 @@
 
 // TODO: Before editing the list, check if the user is in edit mode for any of the lists. If so, do not allow editing. Done!
 // TODO: Text goes out of place when editing Kolli, SRS, and Platser. Fix it. DONE!
+
+
+/* When combining pallets, we need to consider the following:
+  1. The height of the pallets.
+      * Should not exceed 1340 mm. With two exceptions pallets that could be 1360 mm.
+  2. Mix Pallet could only be combined with a Skvett Pallet, if the skvett pallet's stack height is less than 4.
+*/
 class EmptyPallet {
   constructor(length, width, height) {
     this.length = length;
@@ -205,7 +212,7 @@ class Order {
 }
 
 const SRSPallet = new EmptyPallet(1200, 800, 150);
-const MAX_HEIGHT = 1360;
+const MAX_HEIGHT = 1340;
 const EnPlats = 1270 * 2;
 
 const red = new Box(400, 300, 148, 136, 8, 64, 8); // Box(length, width, fullHeight, stackedUponHeight, maxStackHeight, fullPall, boxesInRow)
@@ -552,11 +559,9 @@ function fixaPlockListan() {
   });
 
 
-
-  // combinePallets stack the skvett pallets over each other as long as they don't exceed height of 1400 mm in the most efficient way so the result is as least parcels (kolli) as possible.
   let skvettMixPall = formSkvettPall(mixProducts);
   skvettPalls.push(skvettMixPall);
-  // Combine the skvett pallets in the Best Fit Descending (BFD) approach, and put them in the comboPalls list.
+  // Combine the skvett pallets in the Branch-and-Bound approach, and put them in the comboPalls list.
   comboPalls = combinePallets(skvettPalls, MAX_HEIGHT);
   // If there is a mix pallet, handle it.
   // if (skvettMixPall != null) {
@@ -570,7 +575,9 @@ function fixaPlockListan() {
   const platserStackHeight = platserUsingStackHeight();
   console.log("Platser using stack height: ", platserStackHeight);
 
-
+  console.log("3467 Full Pall height: ", fullPalls[0][0].getHeight() + " mm");
+  console.log("43527 Full Pall height: ", fullPalls[2][0].getHeight()+ " mm");
+  console.log("5585 Full Pall height: ", fullPalls[3][0].getHeight()+ " mm");
   displayResults();
 
   
@@ -919,18 +926,78 @@ function formSkvettPall(mixProducts) {
 
 
 // Use Branch and Bound algorithm instead of BFD
+// function combinePallets(pallets, maxSum) {
+//   pallets.sort((a, b) => b.getHeight() - a.getHeight());
+//   const lowerBound = Math.ceil(pallets.reduce((sum, p) => sum + p.getHeight(), 0) / maxSum);
+//   let bestSolution = null;
+//   let bestSolutionSize = pallets.length; // Worst case: one pallet per bin
+
+//   function branch(index, currentSolution) {
+//     // Base case: all pallets placed
+//     if (index === pallets.length) {
+//       if (currentSolution.length < bestSolutionSize) {
+//         // Create a deep copy of the current solution without using JSON
+//         bestSolution = currentSolution.map(bin => [...bin]);
+//         bestSolutionSize = currentSolution.length;
+//       }
+//       return;
+//     }
+
+//     // Pruning: if current solution size plus lower bound for remaining pallets
+//     // is worse than the best solution, stop exploring this branch
+//     if (currentSolution.length + Math.ceil(pallets.slice(index).reduce((sum, p) => sum + p.getHeight(), 0) / maxSum) >= bestSolutionSize) {
+//       return;
+//     }
+
+//     const currentPallet = pallets[index];
+
+//     // Try adding to existing bins
+//     for (let i = 0; i < currentSolution.length; i++) {
+//       const binHeight = currentSolution[i].reduce((sum, p) => sum + p.getHeight(), 0);
+//       if (binHeight + currentPallet.getHeight() <= maxSum) {
+//         currentSolution[i].push(currentPallet);
+//         branch(index + 1, currentSolution);
+//         currentSolution[i].pop();
+//       }
+//     }
+
+//     // Try creating a new bin
+//     currentSolution.push([currentPallet]);
+//     branch(index + 1, currentSolution);
+//     currentSolution.pop();
+//   }
+
+//   branch(0, []);
+
+//   return bestSolution;
+// }
+
 function combinePallets(pallets, maxSum) {
   pallets.sort((a, b) => b.getHeight() - a.getHeight());
 
-  const lowerBound = Math.ceil(pallets.reduce((sum, p) => sum + p.getHeight(), 0) / maxSum);
+  // const lowerBound = Math.ceil(pallets.reduce((sum, p) => sum + p.getHeight(), 0) / maxSum);
   let bestSolution = null;
   let bestSolutionSize = pallets.length; // Worst case: one pallet per bin
+
+  function isValidBin(bin) {
+    const totalHeight = bin.reduce((sum, p) => sum + p.getHeight(), 0);
+    
+    // Check for "Mix Pall" exception
+    const mixPallIndex = bin.findIndex(p => p.getPallId() === "Mix Pall");
+    if (mixPallIndex !== -1) {
+      return bin.length === 2 && 
+            bin[1 - mixPallIndex].getStackHeight() < 4 && 
+            totalHeight <= maxSum;
+    }
+    
+    // Original conditions
+    return totalHeight <= maxSum || (bin.length === 2 && totalHeight <= maxSum + 20);
+  }
 
   function branch(index, currentSolution) {
     // Base case: all pallets placed
     if (index === pallets.length) {
       if (currentSolution.length < bestSolutionSize) {
-        // Create a deep copy of the current solution without using JSON
         bestSolution = currentSolution.map(bin => [...bin]);
         bestSolutionSize = currentSolution.length;
       }
@@ -947,9 +1014,9 @@ function combinePallets(pallets, maxSum) {
 
     // Try adding to existing bins
     for (let i = 0; i < currentSolution.length; i++) {
-      const binHeight = currentSolution[i].reduce((sum, p) => sum + p.getHeight(), 0);
-      if (binHeight + currentPallet.getHeight() <= maxSum) {
-        currentSolution[i].push(currentPallet);
+      const newBin = [...currentSolution[i], currentPallet];
+      if (isValidBin(newBin)) {
+        currentSolution[i] = newBin;
         branch(index + 1, currentSolution);
         currentSolution[i].pop();
       }
@@ -965,7 +1032,6 @@ function combinePallets(pallets, maxSum) {
 
   return bestSolution;
 }
-
 // Combine Mix Pall with the lowest combo pall if possible.
 function insertMixPall(mixPall, comboPalls) {
 
