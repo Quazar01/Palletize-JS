@@ -323,6 +323,7 @@ const products = [
   new Product("Not Set", 4798, red),
   new Product("Not Set", 4792, red),
 
+
 ];
 
 let kund = "Ingen kund specificerad";
@@ -595,7 +596,7 @@ function fixaPlockListan() {
 // Check if the quantity could be a skvett pall or a mix product.
 function handleSkvettOrMixPall(product, quantity) {
   // If it's on a blandpall. 
-  if (quantity < product.getBox().boxesInRow) {
+  if (quantity < (product.getBox().boxesInRow / 2)) {
     mixProducts.push(new MixProduct(product, quantity));
     quantity = 0;
   } else {
