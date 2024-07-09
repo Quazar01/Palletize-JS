@@ -5,10 +5,7 @@
     padding: 0;
     font-size: 12px;
   }
-  b {
-    font-weight: bold;
-    background-color: #dedddd;
-  }
+
   .container {
     width: 100%;
     margin: 0;
@@ -74,6 +71,7 @@
     margin: 10px;
     padding: 10px;
     width: 15%;
+
   }
 
 
@@ -87,7 +85,7 @@
 
   .kund-and-date-container {
     border-bottom: 2px solid #000;
-    width: 70%;
+    width: 100%;
     text-align: center;
     margin-bottom: 2em;
     margin-left: 8em;
@@ -100,6 +98,12 @@
     align-items: center;
     gap: 2em;
     font-style: italic;
+  }
+
+  .bold-not-full {
+    font-weight: bolder;
+    background-color: rgb(177, 11, 11) !important;
+    color: rgba(188, 0, 0, 0.665) !important;
   }
 }
 
@@ -114,7 +118,7 @@
 body {
   padding-top: 20px;
 }
-b {
+.bold-not-full {
   font-weight: bold;
   background-color: #dedddd;
 }
@@ -214,7 +218,7 @@ button[type="upload-button"]:hover {
 
 .kund-and-date-container {
   border-bottom: 2px solid #000;
-  width: 70%;
+  width: 80%;
   text-align: center;
   margin-bottom: 2em;
   margin-left: 8em;

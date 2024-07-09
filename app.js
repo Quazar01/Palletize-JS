@@ -9,6 +9,7 @@
       * Should not exceed 1340 mm.
       * With two exceptions pallets that could be 1360 mm.
   2. Mix Pallet could only be combined with a Skvett Pallet if it's stack height is less than 4.
+  3. If the products has less than 7 boxes put in the mix pall, if the box is green then less than 3.
 */
 class EmptyPallet {
   constructor(length, width, height) {
@@ -328,6 +329,7 @@ const products = [
 
 let kund = "Ingen kund specificerad";
 let orderDate = getFormattedDate();
+let ordersNummer = "Ingen Order Nummer!";
 
 // Drag and Drop Logic
 const dropZone = document.getElementById('dropZone');
@@ -374,7 +376,12 @@ dropZone.addEventListener('drop', async (event) => {
     else {
       orderDate = getFormattedDate();
     }
-
+    if (ordersNummer.trim().length != 0 && ordersNummer != "") {
+      ordersNummer = document.getElementById('orderNr').value;
+    }
+    else {
+      ordersNummer = "";
+    }
     // Basically, the main function!
     fixaPlockListan();
 
@@ -575,10 +582,9 @@ function fixaPlockListan() {
 
   const platserStackHeight = platserUsingStackHeight();
   console.log("Platser using stack height: ", platserStackHeight);
-
-  console.log("3467 Full Pall height: ", fullPalls[0][0].getHeight() + " mm");
-  console.log("43527 Full Pall height: ", fullPalls[2][0].getHeight()+ " mm");
-  console.log("5585 Full Pall height: ", fullPalls[3][0].getHeight()+ " mm");
+  // console.log("3467 Full Pall height: ", fullPalls[0][0].getHeight() + " mm");
+  // console.log("43527 Full Pall height: ", fullPalls[2][0].getHeight()+ " mm");
+  // console.log("5585 Full Pall height: ", fullPalls[3][0].getHeight()+ " mm");
   displayResults();
 
   
@@ -595,8 +601,13 @@ function fixaPlockListan() {
 
 // Check if the quantity could be a skvett pall or a mix product.
 function handleSkvettOrMixPall(product, quantity) {
+
   // If it's on a blandpall. 
-  if (quantity < (product.getBox().boxesInRow / 2)) {
+  if (product.getBox().boxesInRow == 4 && quantity < 3) {
+    mixProducts.push(new MixProduct(product, quantity));
+    quantity = 0;
+  }
+  else if (product.getBox().boxesInRow == 8 && quantity < 7 ) {
     mixProducts.push(new MixProduct(product, quantity));
     quantity = 0;
   } else {
@@ -1140,10 +1151,16 @@ function formatOutput() {
     output += `<h1 class="kundAndDate">`;
   }
   if (orderDate.trim().length != 0 && orderDate != "") {
-    output += `<i>Datum: ${orderDate}</i></h1></div><br>`;
+    output += `<i>Datum: ${orderDate}</i><`;
   }
   else {
-    output += `<i>Datum: ${getFormattedDate()}<i></h1></div><br>`;
+    output += `<i>Datum: ${getFormattedDate()}</i>`;
+  }
+  if (ordersNummer.trim().length != 0 && ordersNummer != "") {
+    output += `<i> ${ordersNummer}</i></h1></div><br>`
+  }
+  else {
+    output += `</h1></div><br>`
   }
 
   const totalFullPalls = fullPallsQuantity(fullPalls);
@@ -1190,12 +1207,12 @@ function formatOutput() {
 
     for (const pall of fullPall) {
       if (pall.getQuantity() < pall.getProduct().getBox().fullPall) {
-        output += `<b>${pall.getQuantity()}</b>` + " ";
+        output += `<b class="bold-not-full">${pall.getQuantity()}</b>` + " ";
       }
       else { output += `${pall.getQuantity()}` + " "; }
     }
-
-    output += "{" + `${fullPall.length}` + "}</li>"
+    output += `&ensp;{${fullPall.length}}</li>`;
+    // output += "{" + `${fullPall.length}` + "}</li>";
   }
   output += "</ul>"
 
