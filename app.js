@@ -6,8 +6,9 @@
 
 /* When combining pallets, we need to consider the following:
   1. The height of the pallets.
-      * Should not exceed 1340 mm. With two exceptions pallets that could be 1360 mm.
-  2. Mix Pallet could only be combined with a Skvett Pallet, if the skvett pallet's stack height is less than 4.
+      * Should not exceed 1340 mm.
+      * With two exceptions pallets that could be 1360 mm.
+  2. Mix Pallet could only be combined with a Skvett Pallet if it's stack height is less than 4.
 */
 class EmptyPallet {
   constructor(length, width, height) {
@@ -215,7 +216,7 @@ const SRSPallet = new EmptyPallet(1200, 800, 150);
 const MAX_HEIGHT = 1340;
 const EnPlats = 1270 * 2;
 
-const red = new Box(400, 300, 148, 136, 8, 64, 8); // Box(length, width, fullHeight, stackedUponHeight, maxStackHeight, fullPall, boxesInRow)
+const red = new Box(400, 300, 148, 136, 8, 64, 8); // Box(length, width, fullHeight,           stackedUponHeight, maxStackHeight, fullPall, boxesInRow)
 const green = new Box(600, 400, 167, 154, 7, 28, 4);
 const blue = new Box(400, 300, 108, 96, 11, 88, 8);
 const renrum = new Box(400, 300, 108, 66, 16, 128, 8);
@@ -227,8 +228,7 @@ let fullPalls = [];
 let skvettPalls = [];
 let mixProducts = [];
 let comboPalls = [];
-
-let products = [
+const products = [
   new Product("Not Set", 1011, red),
   new Product("Not Set", 1016, red),
   new Product("Not Set", 1111, red),
@@ -925,53 +925,8 @@ function formSkvettPall(mixProducts) {
 // }
 
 
-// Use Branch and Bound algorithm instead of BFD
-// function combinePallets(pallets, maxSum) {
-//   pallets.sort((a, b) => b.getHeight() - a.getHeight());
-//   const lowerBound = Math.ceil(pallets.reduce((sum, p) => sum + p.getHeight(), 0) / maxSum);
-//   let bestSolution = null;
-//   let bestSolutionSize = pallets.length; // Worst case: one pallet per bin
 
-//   function branch(index, currentSolution) {
-//     // Base case: all pallets placed
-//     if (index === pallets.length) {
-//       if (currentSolution.length < bestSolutionSize) {
-//         // Create a deep copy of the current solution without using JSON
-//         bestSolution = currentSolution.map(bin => [...bin]);
-//         bestSolutionSize = currentSolution.length;
-//       }
-//       return;
-//     }
-
-//     // Pruning: if current solution size plus lower bound for remaining pallets
-//     // is worse than the best solution, stop exploring this branch
-//     if (currentSolution.length + Math.ceil(pallets.slice(index).reduce((sum, p) => sum + p.getHeight(), 0) / maxSum) >= bestSolutionSize) {
-//       return;
-//     }
-
-//     const currentPallet = pallets[index];
-
-//     // Try adding to existing bins
-//     for (let i = 0; i < currentSolution.length; i++) {
-//       const binHeight = currentSolution[i].reduce((sum, p) => sum + p.getHeight(), 0);
-//       if (binHeight + currentPallet.getHeight() <= maxSum) {
-//         currentSolution[i].push(currentPallet);
-//         branch(index + 1, currentSolution);
-//         currentSolution[i].pop();
-//       }
-//     }
-
-//     // Try creating a new bin
-//     currentSolution.push([currentPallet]);
-//     branch(index + 1, currentSolution);
-//     currentSolution.pop();
-//   }
-
-//   branch(0, []);
-
-//   return bestSolution;
-// }
-
+// Combine the skvett pallets in the Branch-and-Bound approach, and put them in the comboPalls list.
 function combinePallets(pallets, maxSum) {
   pallets.sort((a, b) => b.getHeight() - a.getHeight());
 
@@ -1233,10 +1188,13 @@ function formatOutput() {
     output += `<li class="editable">${prodId}: <br>`;
 
     for (const pall of fullPall) {
-      output += `${pall.getQuantity()}` + " ";
+      if (pall.getQuantity() < pall.getProduct().getBox().fullPall) {
+        output += `<b>${pall.getQuantity()}</b>` + " ";
+      }
+      else { output += `${pall.getQuantity()}` + " "; }
     }
 
-    output += "{" + `${fullPall.length}` + "}.</li>";
+    output += "{" + `${fullPall.length}` + "}</li>"
   }
   output += "</ul>"
 
