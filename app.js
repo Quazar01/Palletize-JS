@@ -938,7 +938,9 @@ function formSkvettPall(mixProducts) {
 
 
 
+
 // Combine the skvett pallets in the Branch-and-Bound approach, and put them in the comboPalls list.
+
 function combinePallets(pallets, maxSum) {
   pallets.sort((a, b) => b.getHeight() - a.getHeight());
 
