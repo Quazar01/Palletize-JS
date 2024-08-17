@@ -603,14 +603,19 @@ function fixaPlockListan() {
 function handleSkvettOrMixPall(product, quantity) {
 
   // If it's on a blandpall. 
-  if (product.getBox().boxesInRow == 4 && quantity < 4) {
+  // If the product's quantity is zero, then return.
+  if (quantity == 0) {
+    return;
+  }
+  else if (product.getBox().boxesInRow == 4 && quantity < 4) {
     mixProducts.push(new MixProduct(product, quantity));
     quantity = 0;
   }
   else if (product.getBox().boxesInRow == 8 && quantity < 8 ) {
     mixProducts.push(new MixProduct(product, quantity));
     quantity = 0;
-  } else {
+  }
+  else {
     // If it's a skvett pall.
     const skvettPall = new SkvettPall(product, quantity);
     skvettPalls.push(skvettPall);
@@ -1294,7 +1299,8 @@ function formatOutput() {
     if (mixPall != null) {
       output += `<li class="editable">`
 
-      output += `${mixPall.getPallId()}: ${mixPall.getQuantity()} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(${mixPall.getStackHeight()})</li>`;
+      output += `${mixPall.getPallId()}: ${mixPall.getQuantity()}
+      </li>`;
     }
 
     output += "</ul>";
