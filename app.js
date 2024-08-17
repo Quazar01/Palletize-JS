@@ -603,11 +603,11 @@ function fixaPlockListan() {
 function handleSkvettOrMixPall(product, quantity) {
 
   // If it's on a blandpall. 
-  if (product.getBox().boxesInRow == 4 && quantity < 3) {
+  if (product.getBox().boxesInRow == 4 && quantity < 4) {
     mixProducts.push(new MixProduct(product, quantity));
     quantity = 0;
   }
-  else if (product.getBox().boxesInRow == 8 && quantity < 7 ) {
+  else if (product.getBox().boxesInRow == 8 && quantity < 8 ) {
     mixProducts.push(new MixProduct(product, quantity));
     quantity = 0;
   } else {
