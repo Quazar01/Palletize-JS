@@ -569,9 +569,17 @@ function fixaPlockListan() {
 
 
   let skvettMixPall = formSkvettPall(mixProducts);
-  skvettPalls.push(skvettMixPall);
+  // If there is a mix pallet, put it in the skvettPalls list.
+  if (skvettMixPall != null) {
+    skvettPalls.push(skvettMixPall);
+  }
+
+  console.log("Skvett Palls: ", skvettPalls);
   // Combine the skvett pallets in the Branch-and-Bound approach, and put them in the comboPalls list.
   comboPalls = combinePallets(skvettPalls, MAX_HEIGHT);
+  if(comboPalls == null) {
+    comboPalls = [];
+  }
   // If there is a mix pallet, handle it.
   // if (skvettMixPall != null) {
   //   insertMixPall(skvettMixPall, comboPalls);
@@ -858,7 +866,7 @@ function getProduct(productId, products) {
 // Form a skvett pallet from the mix products.
 function formSkvettPall(mixProducts) {
   if (mixProducts.length == 0) {
-    return null;
+    return;
   }
   let totalHeight = 0;
   // totalQuantity is the total number of boxes as red boxes in the mix pallet.
@@ -1172,9 +1180,16 @@ function formatOutput() {
   }
 
   const totalFullPalls = fullPallsQuantity(fullPalls);
-  const SRS = skvettPalls.length + totalFullPalls;
-  const Kolli = comboPalls.length + totalFullPalls;
+  let SRS = 0;
+  let Kolli = 0;
+  if(skvettPalls != null && skvettPalls.length > 0) {
+    SRS = skvettPalls.length + totalFullPalls;
+  }
+  if(comboPalls != null && comboPalls.length > 0) {
+    Kolli = comboPalls.length + totalFullPalls;
+  }
   const platser = calculatePlatser(skvettPalls, fullPalls);
+
 
   if (!document.getElementById('comboRadio').checked) {
     output += `<div class="kolli-container">`;
