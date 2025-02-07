@@ -574,7 +574,6 @@ function fixaPlockListan() {
     skvettPalls.push(skvettMixPall);
   }
 
-  console.log("Skvett Palls: ", skvettPalls);
   // Combine the skvett pallets in the Branch-and-Bound approach, and put them in the comboPalls list.
   comboPalls = combinePallets(skvettPalls, MAX_HEIGHT);
   if(comboPalls == null) {
