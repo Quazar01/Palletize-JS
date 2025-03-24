@@ -252,6 +252,7 @@ const products = [
   new Product("Not Set", 1289, blue),
   new Product("Not Set", 1292, red),
   new Product("Not Set", 1293, red),
+  new Product("Not Set", 1294, red),
   new Product("Not Set", 1361, red),
   new Product("Not Set", 1391, red),
   new Product("Not Set", 1411, red),
