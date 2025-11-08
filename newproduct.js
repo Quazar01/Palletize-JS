@@ -22,38 +22,37 @@ function checkPassword() {
 }
 
 async function addProduct() {
-    // Validate form
-    if (!validateForm()) {
-        return;
-    }
-
-    const productData = {
-        password: passwordInput.value,
-        name: productNameInput.value,
-        id: parseInt(productIdInput.value),
-        type: boxTypeSelect.value
-    };
+    const name = document.getElementById('productName').value;
+    const id = document.getElementById('productId').value;
+    const type = document.getElementById('boxType').value;
+    const password = document.getElementById('passwordInput').value;
 
     try {
+        // Make sure to use the correct URL for the Netlify function
         const response = await fetch('/.netlify/functions/addProduct', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify(productData)
+            body: JSON.stringify({ 
+                password, 
+                name, 
+                id: parseInt(id), 
+                type 
+            })
         });
 
-        const data = await response.json();
-        
-        if (response.ok) {
-            showMessage('Product added successfully!', 'success');
-            clearForm();
-        } else {
-            throw new Error(data.error || 'Failed to add product');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+
+        const data = await response.json();
+        showMessage('Product added successfully!', 'success');
+        clearForm();
+        
     } catch (error) {
         console.error('Error:', error);
-        showMessage(error.message, 'error');
+        showMessage('Failed to add product', 'error');
     }
 }
 
