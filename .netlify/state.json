@@ -1,5 +1,4 @@
 {
-	"siteId": "9925bf1b-9c33-4dcd-a8e3-45eb0f0e69fe",
 	"geolocation": {
 		"data": {
 			"city": "Kalmar",
@@ -17,5 +16,6 @@
 			"postalCode": "392 45"
 		},
 		"timestamp": 1762607135867
-	}
+	},
+	"siteId": "87554396-1005-426f-940d-751032555999"
 }
