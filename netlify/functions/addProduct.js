@@ -1,62 +1,83 @@
-import { Octokit } from '@octokit/rest';
+import { Octokit } from "@octokit/rest";
 
-export const handler = async (event, context) => {
-    try {
-        const { password, name, id, type } = JSON.parse(event.body);
-        
-        if (password !== process.env.ADMIN_PASSWORD) {
-            return {
-                statusCode: 401,
-                body: JSON.stringify({ error: "Invalid password" })
-            };
-        }
-
-        const octokit = new Octokit({
-            auth: process.env.GITHUB_TOKEN
-        });
-
-        // 1. First get the current products.json content
-        const { data: fileData } = await octokit.repos.getContent({
-            owner: process.env.GITHUB_OWNER,
-            repo: process.env.GITHUB_REPO,
-            path: 'Assets/products.json'
-        });
-
-        // 2. Decode the base64 content
-        const content = JSON.parse(Buffer.from(fileData.content, 'base64').toString());
-
-        // 3. Add the new product to the array
-        content.products.push({ 
-            name, 
-            id: parseInt(id), 
-            type 
-        });
-
-        // 4. Update the file in GitHub
-        await octokit.repos.createOrUpdateFileContents({
-            owner: process.env.GITHUB_OWNER,
-            repo: process.env.GITHUB_REPO,
-            path: 'Assets/products.json',
-            message: `Add product ${name}`,
-            content: Buffer.from(JSON.stringify(content, null, 2)).toString('base64'),
-            sha: fileData.sha
-        });
-
-        return {
-            statusCode: 200,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: "Product added successfully" })
-        };
-    } catch (error) {
-        console.error(error);
-        return {
-            statusCode: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: error.message })
-        };
+export const handler = async (event) => {
+  console.log("addProduct invoked");
+  try {
+    if (event.httpMethod !== "POST") {
+      return { statusCode: 405, body: "Method Not Allowed" };
     }
+
+    const payload = JSON.parse(event.body || "{}");
+    const { password, name, id, type } = payload;
+    console.log("payload (masked):", { password: password ? "***" : null, name, id, type });
+
+    const missing = ["ADMIN_PASSWORD", "GITHUB_TOKEN", "GITHUB_OWNER", "GITHUB_REPO"].filter(k => !process.env[k]);
+    if (missing.length) {
+      console.error("Missing env:", missing);
+      return { statusCode: 500, body: JSON.stringify({ error: `Missing env: ${missing.join(",")}` }) };
+    }
+
+    if (password !== process.env.ADMIN_PASSWORD) {
+      return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
+    }
+
+    const owner = process.env.GITHUB_OWNER;
+    const repo = process.env.GITHUB_REPO;
+    const branch = process.env.GITHUB_BRANCH; // optional
+    const path = "Assets/products.json";
+    const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+
+    let fileData;
+    try {
+      const params = { owner, repo, path };
+      if (branch) params.ref = branch;
+      const resp = await octokit.repos.getContent(params);
+      fileData = resp.data;
+      console.log("Got fileData.sha:", fileData.sha);
+    } catch (err) {
+      // If 404, we'll create the file
+      if (err.status === 404) {
+        console.warn("products.json not found, will create a new one");
+        fileData = null;
+      } else {
+        console.error("Error getting content:", err);
+        throw err;
+      }
+    }
+
+    let contentObj;
+    if (fileData && fileData.content) {
+      const decoded = Buffer.from(fileData.content, "base64").toString("utf8");
+      contentObj = JSON.parse(decoded);
+      contentObj.products = contentObj.products || [];
+    } else {
+      contentObj = { products: [] };
+    }
+
+    contentObj.products.push({ name, id: parseInt(id, 10), type });
+
+    const newContentBase64 = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
+
+    const updateParams = {
+      owner,
+      repo,
+      path,
+      message: `Add product ${name}`,
+      content: newContentBase64
+    };
+    if (fileData && fileData.sha) updateParams.sha = fileData.sha;
+    if (branch) updateParams.branch = branch;
+
+    const updateResp = await octokit.repos.createOrUpdateFileContents(updateParams);
+    console.log("Update response:", updateResp.status);
+
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: "Product added successfully" })
+    };
+  } catch (err) {
+    console.error("Unhandled error:", err);
+    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+  }
 };
