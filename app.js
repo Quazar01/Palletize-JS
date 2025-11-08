@@ -1,7 +1,7 @@
 // Description: This file contains the main logic for the application. It processes the Excel file, extracts the data, and generates the output based on the requirements. The output is then displayed on the web page for the user to view. 
 
 // TODO: Before editing the list, check if the user is in edit mode for any of the lists. If so, do not allow editing. Done!
-// TODO: Text goes out of place when editing Kolli, SRS, and Platser. Fix it. DONE!
+// TODO: Text goes out of place when editing Kolli, SRS, and Platser. FIXED!
 
 
 /* When combining pallets, we need to consider the following:
@@ -229,107 +229,32 @@ let fullPalls = [];
 let skvettPalls = [];
 let mixProducts = [];
 let comboPalls = [];
-const products = [
-  new Product("Not Set", 1011, red),
-  new Product("Not Set", 1016, red),
-  new Product("Not Set", 1111, red),
-  new Product("Not Set", 1112, red),
-  new Product("Not Set", 1151, red),
-  new Product("Not Set", 1161, red),
-  new Product("Not Set", 1167, blue),
-  new Product("Not Set", 1168, red),
-  new Product("Not Set", 1185, red),
-  new Product("Not Set", 1211, red),
-  new Product("Not Set", 1241, red),
-  new Product("Not Set", 1251, red),
-  new Product("Not Set", 1260, red),
-  new Product("Not Set", 1261, red),
-  new Product("Not Set", 1264, red),
-  new Product("Not Set", 1266, red),
-  new Product("Not Set", 1267, red),
-  new Product("Not Set", 1273, red),
-  new Product("Not Set", 1286, red),
-  new Product("Not Set", 1289, blue),
-  new Product("Not Set", 1292, red),
-  new Product("Not Set", 1293, red),
-  new Product("Not Set", 1294, red),
-  new Product("Not Set", 1295, red),
-  new Product("Not Set", 1361, red),
-  new Product("Not Set", 1391, red),
-  new Product("Not Set", 1411, red),
-  new Product("Not Set", 3941, green),
-  new Product("Not Set", 3948, green),
-  new Product("Not Set", 9852, red),
-  new Product("Not Set", 1043, red),
-  new Product("Not Set", 1037, red),
-  new Product("Not Set", 1047, green),
-  new Product("Not Set", 1052, green),
-  new Product("Not Set", 1057, green),
-  new Product("Not Set", 10422, green),
-  new Product("Not Set", 10622, green),
-  new Product("Not Set", 10722, green),
-  new Product("Not Set", 1176, black),
-  new Product("Not Set", 1222, black),
-  new Product("Not Set", 3362, green),
-  new Product("Not Set", 3467, green),
-  new Product("Not Set", 3562, green),
-  new Product("Not Set", 3762, green),
-  new Product("Not Set", 3763, green),
-  new Product("Not Set", 36622, green),
-  new Product("Not Set", 37622, green),
-  new Product("Not Set", 63326, green),
-  new Product("Not Set", 327960, red),
-  new Product("Not Set", 327986, red),
-  new Product("Not Set", 327994, red),
-  new Product("Not Set", 407788, red),
-  new Product("Not Set", 43527, red),
-  new Product("Not Set", 5209, blue),
-  new Product("Not Set", 7123, red),
-  new Product("Not Set", 7734, red),
-  new Product("Not Set", 9835, red),
-  new Product("Not Set", 9839, red),
-  new Product("Not Set", 9840, green),
-  new Product("Not Set", 1310, blue),
-  new Product("Not Set", 1311, red),
-  new Product("Not Set", 5585, blue),
-  new Product("Not Set", 2700, renrum),
-  new Product("Not Set", 2701, renrum),
-  new Product("Not Set", 2703, renrum),
-  new Product("Not Set", 2704, renrum),
-  new Product("Not Set", 2706, renrum),
+let products = [];
 
-  // Lidl products
-  new Product("Not Set", 3459, red),
-  new Product("Not Set", 3947, green),
-  new Product("Not Set", 4721, red),
-  new Product("Not Set", 4722, red),
-  new Product("Not Set", 4723, red),
-  new Product("Not Set", 4724, red),
-  new Product("Not Set", 4725, red),
-  new Product("Not Set", 4726, red),
-  new Product("Not Set", 4727, red),
-  new Product("Not Set", 4730, red),
-  new Product("Not Set", 4734, red),
-  new Product("Not Set", 4735, red),
-  new Product("Not Set", 4746, red),
-  new Product("Not Set", 4747, red),
-  new Product("Not Set", 4748, red),
-  new Product("Not Set", 4749, red),
-  new Product("Not Set", 4751, black),
-  new Product("Not Set", 4753, red),
-  new Product("Not Set", 4755, black),
-  new Product("Not Set", 4760, blue),
-  new Product("Not Set", 4762, blue),
-  new Product("Not Set", 4764, red),
-  new Product("Not Set", 4766, red),
-  new Product("Not Set", 4767, red),
-  new Product("Not Set", 4771, black),
-  new Product("Not Set", 4788, red),
-  new Product("Not Set", 4798, red),
-  new Product("Not Set", 4792, red),
+// Load products from JSON file
+async function loadProducts() {
+  try {
+    const response = await fetch('./Assets/products.json');
+    const data = await response.json();
+    products = data.products.map(item => {
+      // Convert type string to box object reference
+      let boxType;
+      switch(item.type) {
+        case 'red': boxType = red; break;
+        case 'blue': boxType = blue; break;
+        case 'green': boxType = green; break;
+        case 'black': boxType = black; break;
+        case 'renrum': boxType = renrum; break;
+      }
+      return new Product(item.name, item.id, boxType);
+    });
+  } catch (error) {
+    console.error('Error loading products:', error);
+  }
+}
 
-
-];
+// Call loadProducts to initialize products
+await loadProducts();
 
 let kund = "Ingen kund specificerad";
 let orderDate = getFormattedDate();
@@ -612,25 +537,44 @@ function fixaPlockListan() {
 
 // Check if the quantity could be a skvett pall or a mix product.
 function handleSkvettOrMixPall(product, quantity) {
-
-  // If it's on a blandpall. 
   // If the product's quantity is zero, then return.
   if (quantity == 0) {
     return;
   }
-  else if (product.getBox().boxesInRow == 4 && quantity < 4) {
-    mixProducts.push(new MixProduct(product, quantity));
-    quantity = 0;
-  }
-  else if (product.getBox().boxesInRow == 8 && quantity < 8 ) {
-    mixProducts.push(new MixProduct(product, quantity));
-    quantity = 0;
-  }
+
+  const selectedPalletType = document.querySelector('input[name="palletType"]:checked').value;
+
+  if (selectedPalletType === 'helsingborg') {
+    // Helsingborg logic
+    if (product.getBox().boxesInRow == 4 && quantity < 3) {
+      mixProducts.push(new MixProduct(product, quantity));
+      quantity = 0;
+    }
+    else if (product.getBox().boxesInRow == 8 && quantity < 4) {
+      mixProducts.push(new MixProduct(product, quantity));
+      quantity = 0;
+    }
+    else {
+      // If it's a skvett pall
+      const skvettPall = new SkvettPall(product, quantity);
+      skvettPalls.push(skvettPall);
+    }
+  } 
   else {
-    // If it's a skvett pall.
-    const skvettPall = new SkvettPall(product, quantity);
-    skvettPalls.push(skvettPall);
-    // console.log("skvett pall height: ", skvettPall.getHeight() + " mm");
+    // Original logic for other pallet types
+    if (product.getBox().boxesInRow == 4 && quantity < 4) {
+      mixProducts.push(new MixProduct(product, quantity));
+      quantity = 0;
+    }
+    else if (product.getBox().boxesInRow == 8 && quantity < 8) {
+      mixProducts.push(new MixProduct(product, quantity));
+      quantity = 0;
+    }
+    else {
+      // If it's a skvett pall
+      const skvettPall = new SkvettPall(product, quantity);
+      skvettPalls.push(skvettPall);
+    }
   }
 }
 

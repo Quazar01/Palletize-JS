@@ -1,3 +1,7 @@
 .DS_Store
 /test
 /.vscode
+node_modules/
+.env
+.env.local
+.env.*.local
