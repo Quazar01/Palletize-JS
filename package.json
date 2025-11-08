@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Quazar01/Palletize-JS#readme",
   "dependencies": {
+    "@octokit/rest": "^22.0.1",
     "node-fetch": "^2.7.0"
   }
 }

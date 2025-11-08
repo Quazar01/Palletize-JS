@@ -1,0 +1,21 @@
+{
+	"siteId": "9925bf1b-9c33-4dcd-a8e3-45eb0f0e69fe",
+	"geolocation": {
+		"data": {
+			"city": "Kalmar",
+			"country": {
+				"code": "SE",
+				"name": "Sweden"
+			},
+			"subdivision": {
+				"code": "H",
+				"name": "Kalmar"
+			},
+			"timezone": "Europe/Stockholm",
+			"latitude": 56.6591,
+			"longitude": 16.3569,
+			"postalCode": "392 45"
+		},
+		"timestamp": 1762607135867
+	}
+}
