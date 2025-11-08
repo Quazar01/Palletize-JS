@@ -1,6 +1,6 @@
-const { Octokit } = require("@octokit/rest");
+import { Octokit } from '@octokit/rest';
 
-exports.handler = async function(event, context) {
+export const handler = async (event, context) => {
   // Only allow POST
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
@@ -43,11 +43,17 @@ exports.handler = async function(event, context) {
 
     return {
       statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ message: "Product added successfully" })
     };
   } catch (error) {
     return {
       statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ error: error.message })
     };
   }

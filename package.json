@@ -1,25 +1,8 @@
 {
-  "name": "palletize",
+  "name": "palletize-js",
   "version": "1.0.0",
-  "description": "This JavaScript application is designed to optimize the process of managing products, orders, and pallets in a warehouse environment. It includes functionality for processing orders from an Excel file, organizing products into different types of pallets (full, skvett, and mix), and calculating the most efficient way to stack and ship these pallets.",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Quazar01/Palletize-JS.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Quazar01/Palletize-JS/issues"
-  },
-  "homepage": "https://github.com/Quazar01/Palletize-JS#readme",
+  "type": "module",
   "dependencies": {
-    "@octokit/rest": "^22.0.1",
-    "node-fetch": "^2.7.0"
+    "@octokit/rest": "^19.0.7"
   }
 }
