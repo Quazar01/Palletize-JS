@@ -1,5 +1,5 @@
-const PASSWORD = 'GuldKyckling!'; // Change this or move to environment variable
-
+// Get the password from environment variable
+const PASSWORD = 'GuldKyckling!';
 // DOM Elements
 const passwordSection = document.getElementById('passwordSection');
 const productForm = document.getElementById('productForm');
@@ -23,9 +23,30 @@ function checkPassword() {
 
 async function addProduct() {
     const name = document.getElementById('productName').value;
-    const id = document.getElementById('productId').value;
+    const id = parseInt(document.getElementById('productId').value, 10);
     const type = document.getElementById('boxType').value;
     const password = document.getElementById('passwordInput').value;
+
+    // Validate ID is positive
+    if (isNaN(id) || id <= 0) {
+        showMessage('Product ID must be a positive number', 'error');
+        return;
+    }
+
+    // Fetch products.json to check for duplicate ID
+    try {
+        const productsResp = await fetch('Assets/products.json', { cache: "no-store" });
+        if (!productsResp.ok) throw new Error('Could not load products');
+        const productsData = await productsResp.json();
+        const exists = productsData.products.some(p => p.id === id);
+        if (exists) {
+            showMessage('Product ID already exists', 'error');
+            return;
+        }
+    } catch (err) {
+        showMessage('Could not validate product ID', 'error');
+        return;
+    }
 
     try {
         // Make sure to use the correct URL for the Netlify function
@@ -37,7 +58,7 @@ async function addProduct() {
             body: JSON.stringify({ 
                 password, 
                 name, 
-                id: parseInt(id), 
+                id, 
                 type 
             })
         });

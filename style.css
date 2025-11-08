@@ -465,3 +465,29 @@ li {
 
   }
 }
+
+#add-product-btn-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+}
+
+.button-link, #add-product-btn {
+    display: inline-block;
+    padding: 6px 12px; 
+    background-color: #008CBA;
+    color: #fff !important;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.95em;   /* Slightly smaller font */
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.button-link:hover, #add-product-btn:hover {
+    background-color: #005f73;
+    color: #fff !important;
+}
