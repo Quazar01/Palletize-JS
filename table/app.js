@@ -228,6 +228,8 @@ let products = [
   new Product("Not Set", 1168, red),
   new Product("Not Set", 1185, red),
   new Product("Not Set", 1211, red),
+  new Product("Not Set", 1224, red),
+  new Product("Not Set", 1225, red),
   new Product("Not Set", 1241, red),
   new Product("Not Set", 1251, red),
   new Product("Not Set", 1260, red),
